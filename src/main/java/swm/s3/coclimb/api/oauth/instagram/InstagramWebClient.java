@@ -8,7 +8,12 @@ import org.springframework.web.reactive.function.client.WebClient;
 public class InstagramWebClient{
 
     @Bean
-    public WebClient webClient() {
+    public WebClient basicDisplayClient() {
         return WebClient.create("https://api.instagram.com");
+    }
+
+    @Bean
+    public WebClient graphClient() {
+        return WebClient.create("https://graph.instagram.com");
     }
 }

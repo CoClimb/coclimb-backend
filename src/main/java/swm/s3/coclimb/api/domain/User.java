@@ -4,6 +4,11 @@ import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.util.StringUtils;
+
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.sql.Date;
 
 @Entity
 @Getter
@@ -27,5 +32,22 @@ public class User {
         this.username = username;
         this.instaUserId = instaUserId;
         this.instaAccessToken = instaAccessToken;
+    }
+
+    public void update(User updatePart) {
+        Field[] fields = this.getClass().getDeclaredFields();
+        for (Field field : fields) {
+            String getterName = "get" + StringUtils.capitalize(field.getName());
+            try {
+                Method getter = this.getClass().getMethod(getterName);
+                Object updateValue = getter.invoke(updatePart);
+                if (updateValue != null) {
+                    field.setAccessible(true);
+                    field.set(this, updateValue);
+                }
+            } catch (Exception e) {
+                // throw Exception
+            }
+        }
     }
 }
