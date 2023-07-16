@@ -17,6 +17,9 @@ import swm.s3.coclimb.api.domain.User;
 import swm.s3.coclimb.api.oauth.instagram.InstagramOAuthRecord;
 import swm.s3.coclimb.api.oauth.instagram.InstagramWebClient;
 
+import java.time.LocalDate;
+import java.time.Period;
+
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -33,26 +36,41 @@ public class UserService implements UserCommand {
     @Transactional
     public void loginInstagram(String code) {
         if(code == null) {
-            throw new RuntimeException("code is null");
+            throw new RuntimeException("유효하지 않은 인증 코드");
         }
 
-        InstaUserData instaUserData  = getAccessToken(code);
+        InstaUserData instaUserData  = getShortLivedAccessTokenAndUserId(code);
         User user = userLoadPort.findByInstaUserId(instaUserData.getUserId());
+        LocalDate nowDate = LocalDate.now();
 
         if(user == null) {
+            String longLivedAccessToken = getLongLivedAccessToken(instaUserData.getShortLivedAccessToken());
             userUpdatePort.save(User.builder()
-                    .username(null)
                     .instaUserId(instaUserData.getUserId())
-                    .instaAccessToken(instaUserData.getLongLivedAccessToken())
+                    .instaAccessToken(longLivedAccessToken)
+                    .instaTokenExpireDate(nowDate.plusDays(60))
                     .build());
         } else {
-            user.update(User.builder()
-                    .instaAccessToken(instaUserData.getLongLivedAccessToken())
-                    .build());
+            Period gap = Period.between(nowDate, user.getInstaTokenExpireDate());
+
+            if(gap.getMonths() <= 0) {
+                String longLivedAccessToken = null;
+
+                if(gap.getDays() > 0) {
+                    longLivedAccessToken = refreshLongLivedToken(user.getInstaAccessToken());
+                } else {
+                    longLivedAccessToken = getLongLivedAccessToken(instaUserData.getShortLivedAccessToken());
+                }
+
+                user.update(User.builder()
+                        .instaAccessToken(longLivedAccessToken)
+                        .instaTokenExpireDate(nowDate.plusDays(60))
+                        .build());
+            }
         }
     }
 
-    private InstaUserData getAccessToken(String code) {
+    private InstaUserData getShortLivedAccessTokenAndUserId(String code) {
         MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
         formData.add("client_id", instagramOAuthRecord.clientId());
         formData.add("client_secret", instagramOAuthRecord.clientSecret());
@@ -73,11 +91,9 @@ public class UserService implements UserCommand {
                 }).block();
 
         JSONObject userInfo = new JSONObject(response);
-        String longLivedAccessToken = getLongLivedAccessToken(userInfo.getString("access_token"));
 
         return new InstaUserData(
                 userInfo.getString("access_token"),
-                longLivedAccessToken,
                 userInfo.getLong("user_id"));
     }
 
@@ -92,8 +108,26 @@ public class UserService implements UserCommand {
                     if (clientResponse.statusCode().is2xxSuccessful()) {
                         return clientResponse.bodyToMono(String.class);
                     } else {
-                        clientResponse.bodyToMono(String.class).subscribe(System.out::println);
                         return Mono.error(new RuntimeException("장기 토큰 발급 실패"));
+                    }
+                }).block();
+
+        JSONObject tokenInfo = new JSONObject(response);
+
+        return tokenInfo.getString("access_token");
+    }
+
+    private String refreshLongLivedToken(String longLivedAccessToken) {
+        String targetUri = String.format("/refresh_access_token?grant_type=ig_refresh_token&access_token=%s",
+                longLivedAccessToken);
+
+        String response = instagramWebClient.graphClient().get()
+                .uri(targetUri)
+                .exchangeToMono(clientResponse -> {
+                    if (clientResponse.statusCode().is2xxSuccessful()) {
+                        return clientResponse.bodyToMono(String.class);
+                    } else {
+                        return Mono.error(new RuntimeException("장기 토큰 갱신 실패"));
                     }
                 }).block();
 
@@ -105,12 +139,10 @@ public class UserService implements UserCommand {
     @Getter
     private class InstaUserData {
         private String shortLivedAccessToken;
-        private String longLivedAccessToken;
         private Long userId;
 
-        public InstaUserData(String shortLivedAccessToken, String longLivedAccessToken, Long userId) {
+        public InstaUserData(String shortLivedAccessToken, Long userId) {
             this.shortLivedAccessToken = shortLivedAccessToken;
-            this.longLivedAccessToken = longLivedAccessToken;
             this.userId = userId;
         }
     }

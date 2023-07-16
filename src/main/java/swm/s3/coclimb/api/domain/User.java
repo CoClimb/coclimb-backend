@@ -8,7 +8,7 @@ import org.springframework.util.StringUtils;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.sql.Date;
+import java.time.LocalDate;
 
 @Entity
 @Getter
@@ -26,12 +26,14 @@ public class User {
     // instagram information
     private Long instaUserId;
     private String instaAccessToken;
+    private LocalDate instaTokenExpireDate;
 
     @Builder
-    public User(String username, Long instaUserId, String instaAccessToken) {
+    public User(String username, Long instaUserId, String instaAccessToken, LocalDate instaTokenExpireDate) {
         this.username = username;
         this.instaUserId = instaUserId;
         this.instaAccessToken = instaAccessToken;
+        this.instaTokenExpireDate = instaTokenExpireDate;
     }
 
     public void update(User updatePart) {

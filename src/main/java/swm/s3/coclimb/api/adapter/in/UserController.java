@@ -38,7 +38,7 @@ public class UserController {
         userCommand.loginInstagram(instagramAuthRequest.getCode());
 
         return ResponseEntity
-                .status(HttpStatus.OK)
+                .status(HttpStatus.CREATED)
                 .build();
     }
 }
