@@ -5,9 +5,9 @@ import org.springframework.stereotype.Component;
 
 @Component
 public record InstagramOAuthRecord(String clientId, String clientSecret, String redirectUri) {
-    public InstagramOAuthRecord(@Value("${oauth.instagram.client-id}") String clientId,
-                                @Value("${oauth.instagram.client-secret}") String clientSecret,
-                                @Value("${oauth.instagram.redirect-uri}") String redirectUri) {
+    public InstagramOAuthRecord(@Value("${oauth.instagram.client_id}") String clientId,
+                                @Value("${oauth.instagram.client_secret}") String clientSecret,
+                                @Value("${oauth.instagram.redirect_uri}") String redirectUri) {
         this.clientId = clientId;
         this.clientSecret = clientSecret;
         this.redirectUri = redirectUri;
