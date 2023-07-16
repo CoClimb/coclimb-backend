@@ -7,6 +7,6 @@ import lombok.Getter;
 @Getter
 @Builder
 public class ShortLivedTokenResponse {
-    private String shortLivedAccessToken;
-    private Long userId;
+    String shortLivedAccessToken;
+    Long userId;
 }
