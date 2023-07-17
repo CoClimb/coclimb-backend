@@ -1,4 +1,4 @@
-package swm.s3.coclimb.api.adapter.out;
+package swm.s3.coclimb.api.adapter.out.user;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import swm.s3.coclimb.api.domain.User;

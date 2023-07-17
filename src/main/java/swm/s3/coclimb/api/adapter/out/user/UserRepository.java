@@ -1,9 +1,9 @@
-package swm.s3.coclimb.api.adapter.out;
+package swm.s3.coclimb.api.adapter.out.user;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
-import swm.s3.coclimb.api.application.port.out.UserLoadPort;
-import swm.s3.coclimb.api.application.port.out.UserUpdatePort;
+import swm.s3.coclimb.api.application.port.out.user.UserLoadPort;
+import swm.s3.coclimb.api.application.port.out.user.UserUpdatePort;
 import swm.s3.coclimb.api.domain.User;
 
 @Repository

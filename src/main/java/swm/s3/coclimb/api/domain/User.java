@@ -37,19 +37,9 @@ public class User {
     }
 
     public void update(User updatePart) {
-        Field[] fields = this.getClass().getDeclaredFields();
-        for (Field field : fields) {
-            String getterName = "get" + StringUtils.capitalize(field.getName());
-            try {
-                Method getter = this.getClass().getMethod(getterName);
-                Object updateValue = getter.invoke(updatePart);
-                if (updateValue != null) {
-                    field.setAccessible(true);
-                    field.set(this, updateValue);
-                }
-            } catch (Exception e) {
-                // throw Exception
-            }
-        }
+        this.username = (updatePart.username == null) ? this.username : updatePart.username;
+        this.instaUserId = (updatePart.instaUserId == null) ? this.instaUserId : updatePart.instaUserId;
+        this.instaAccessToken = (updatePart.instaAccessToken == null) ? this.instaAccessToken : updatePart.instaAccessToken;
+        this.instaTokenExpireDate = (updatePart.instaTokenExpireDate == null) ? this.instaTokenExpireDate : updatePart.instaTokenExpireDate;
     }
 }

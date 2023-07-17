@@ -1,4 +1,4 @@
-package swm.s3.coclimb.api.adapter.in;
+package swm.s3.coclimb.api.adapter.in.user;
 
 
 import lombok.RequiredArgsConstructor;
@@ -6,8 +6,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import swm.s3.coclimb.api.adapter.in.dto.InstagramAuthRequest;
-import swm.s3.coclimb.api.application.port.in.UserCommand;
+import swm.s3.coclimb.api.adapter.in.user.dto.InstagramAuthRequest;
+import swm.s3.coclimb.api.application.port.in.user.UserCommand;
 import swm.s3.coclimb.api.oauth.instagram.InstagramOAuthRecord;
 
 import java.net.URI;
