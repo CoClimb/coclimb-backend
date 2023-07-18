@@ -79,7 +79,7 @@ public class UserController {
         }
 
         session.setAttribute("user", SessionUser.builder()
-                .UserId(user.getId())
+                .userId(user.getId())
                 .instaUserId(user.getInstaUserId())
                 .instaAccessToken(user.getInstaAccessToken())
                 .build());
@@ -102,7 +102,7 @@ public class UserController {
 
         if(user != null) {
             session.setAttribute("user", SessionUser.builder()
-                    .UserId(user.getId())
+                    .userId(user.getId())
                     .instaUserId(user.getInstaUserId())
                     .instaAccessToken(user.getInstaAccessToken())
                     .build());

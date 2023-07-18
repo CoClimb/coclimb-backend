@@ -6,7 +6,7 @@ import lombok.Getter;
 @Getter
 @Builder
 public class SessionUser {
-    Long UserId;
+    Long userId;
     Long instaUserId;
     String instaAccessToken;
 }

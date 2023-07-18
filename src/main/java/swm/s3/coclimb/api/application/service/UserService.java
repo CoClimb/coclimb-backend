@@ -22,7 +22,6 @@ public class UserService implements UserCommand, UserQuery {
 
     private final UserLoadPort userLoadPort;
     private final UserUpdatePort userUpdatePort;
-
     private final InstagramRestApiManager instagramRestApiManager;
 
     @Override
