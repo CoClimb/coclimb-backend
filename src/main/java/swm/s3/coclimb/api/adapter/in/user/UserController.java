@@ -85,4 +85,13 @@ public class UserController {
                 .status(HttpStatus.OK)
                 .body(user);
     }
+
+    @GetMapping("/logout")
+    public ResponseEntity<?> logout(HttpSession session) {
+        session.invalidate();
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(null);
+    }
 }
