@@ -1,4 +1,4 @@
-package swm.s3.coclimb.api.oauth.instagram;
+package swm.s3.coclimb.api.auth.instagram;
 
 import lombok.RequiredArgsConstructor;
 import org.json.JSONObject;
@@ -8,8 +8,8 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.BodyInserters;
 import reactor.core.publisher.Mono;
-import swm.s3.coclimb.api.oauth.instagram.dto.LongLivedTokenResponseDto;
-import swm.s3.coclimb.api.oauth.instagram.dto.ShortLivedTokenResponseDto;
+import swm.s3.coclimb.api.auth.instagram.dto.LongLivedTokenResponseDto;
+import swm.s3.coclimb.api.auth.instagram.dto.ShortLivedTokenResponseDto;
 
 @Component
 @RequiredArgsConstructor

@@ -1,4 +1,4 @@
-package swm.s3.coclimb.api.oauth.instagram;
+package swm.s3.coclimb.api.auth.instagram;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;

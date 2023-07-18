@@ -1,4 +1,4 @@
-package swm.s3.coclimb.api.oauth.instagram.dto;
+package swm.s3.coclimb.api.auth.instagram.dto;
 
 
 import lombok.Builder;

@@ -18,6 +18,11 @@ public class UserRepository implements UserLoadPort, UserUpdatePort {
     }
 
     @Override
+    public User findById(Long id) {
+        return userJpaRepository.findById(id).orElse(null);
+    }
+
+    @Override
     public void save(User user) {
         userJpaRepository.save(user);
     }

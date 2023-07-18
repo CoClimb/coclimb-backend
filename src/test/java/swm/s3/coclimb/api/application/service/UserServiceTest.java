@@ -14,9 +14,9 @@ import swm.s3.coclimb.api.adapter.out.user.UserJpaRepository;
 import swm.s3.coclimb.api.application.port.out.user.UserLoadPort;
 import swm.s3.coclimb.api.application.port.out.user.UserUpdatePort;
 import swm.s3.coclimb.api.domain.User;
-import swm.s3.coclimb.api.oauth.instagram.InstagramRestApiManager;
-import swm.s3.coclimb.api.oauth.instagram.dto.LongLivedTokenResponseDto;
-import swm.s3.coclimb.api.oauth.instagram.dto.ShortLivedTokenResponseDto;
+import swm.s3.coclimb.api.auth.instagram.InstagramRestApiManager;
+import swm.s3.coclimb.api.auth.instagram.dto.LongLivedTokenResponseDto;
+import swm.s3.coclimb.api.auth.instagram.dto.ShortLivedTokenResponseDto;
 
 import java.time.LocalDate;
 
