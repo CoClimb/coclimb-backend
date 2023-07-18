@@ -71,4 +71,9 @@ public class UserService implements UserCommand, UserQuery {
     public User findById(Long id) {
         return userLoadPort.findById(id);
     }
+
+    @Override
+    public User findByInstaUserId(Long instaUserId) {
+        return userLoadPort.findByInstaUserId(instaUserId);
+    }
 }
