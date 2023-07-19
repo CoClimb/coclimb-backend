@@ -1,15 +1,9 @@
-package swm.s3.coclimb;
+package swm.s3.coclimb.config;
 
-import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
 @SpringBootTest
 @ActiveProfiles("test")
-class CoclimbApplicationTests {
-
-	@Test
-	void contextLoads() {
-	}
-
+public abstract class IntegrationTestSupport {
 }
