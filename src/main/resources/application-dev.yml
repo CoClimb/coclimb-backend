@@ -2,12 +2,11 @@ spring:
   config:
     activate:
       on-profile: dev
-
-#  datasource:
-#    driver-class-name: com.mysql.cj.jdbc.Driver
-#    url: jdbc:mysql://mysql-db:3306/coclimb_dev_db?useLegacyDatetimeCode=false&useSSL=false&allowPublicKeyRetrieval=true
-#    username: user
-#    password: 1234
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: ${dev.db.url}
+    username: ${dev.db.username}
+    password: ${dev.db.password}
   jpa:
     hibernate:
       ddl-auto: create
@@ -16,4 +15,4 @@ spring:
         show_sql: true
         format_sql: true
 logging.level:
-  org.hibernate.SQL: debug
+  org.hibernate.SQL: info

@@ -1,3 +1,9 @@
 spring:
   profiles:
-    default: local
+    active: local
+    include: secret
+oauth:
+  instagram:
+    client_id: ${secret.instagram.client_id}
+    client_secret: ${secret.instagram.client_secret}
+    redirect_uri: ${secret.instagram.redirect_uri}

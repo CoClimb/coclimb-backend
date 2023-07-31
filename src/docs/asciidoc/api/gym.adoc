@@ -1,0 +1,57 @@
+[[gym-create]]
+=== 신규 암장 등록
+==== HTTP Request
+include::{snippets}/gym-create/http-request.adoc[]
+include::{snippets}/gym-create/request-fields.adoc[]
+==== HTTP Response
+include::{snippets}/gym-create/http-response.adoc[]
+// include::{snippets}/gym-create/response-fields.adoc[]
+---
+
+[[gym-remove]]
+=== 암장 정보 제거
+==== HTTP Request
+include::{snippets}/gym-remove/http-request.adoc[]
+include::{snippets}/gym-remove/request-fields.adoc[]
+==== HTTP Response
+include::{snippets}/gym-remove/http-response.adoc[]
+// include::{snippets}/gym-remove/response-fields.adoc[]
+---
+
+[[gym-update]]
+=== 암장 정보 수정
+==== HTTP Request
+include::{snippets}/gym-update/http-request.adoc[]
+include::{snippets}/gym-update/request-fields.adoc[]
+==== HTTP Response
+include::{snippets}/gym-update/http-response.adoc[]
+// include::{snippets}/gym-update/response-fields.adoc[]
+
+[[gym-info]]
+=== 암장 정보 조회
+==== HTTP Request
+include::{snippets}/gym-info/http-request.adoc[]
+include::{snippets}/gym-info/path-parameters.adoc[]
+==== HTTP Response
+include::{snippets}/gym-info/http-response.adoc[]
+include::{snippets}/gym-info/response-fields.adoc[]
+
+[[gym-locations]]
+=== 암장 위치정보 조회
+==== HTTP Request
+include::{snippets}/gym-locations/http-request.adoc[]
+==== HTTP Response
+include::{snippets}/gym-locations/http-response.adoc[]
+include::{snippets}/gym-locations/response-fields.adoc[]
+
+[[gym-page]]
+=== 암장 페이지 조회
+==== HTTP Request
+include::{snippets}/gym-page/http-request.adoc[]
+==== HTTP Response
+include::{snippets}/gym-page/http-response.adoc[]
+include::{snippets}/gym-page/response-fields.adoc[]
+
+
+
+

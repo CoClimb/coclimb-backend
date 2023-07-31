@@ -1,0 +1,8 @@
+[[user-read]]
+=== 유저 정보 조회
+==== HTTP Request
+include::{snippets}/user-myinfo/http-request.adoc[]
+==== HTTP Response
+include::{snippets}/user-myinfo/http-response.adoc[]
+include::{snippets}/user-myinfo/response-fields.adoc[]
+---
