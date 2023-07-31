@@ -1,6 +1,0 @@
-[[fail-response]]
-=== 에러 발생 응답
-==== HTTP Response
-include::{snippets}/error-response/http-response.adoc[]
-include::{snippets}/error-response/response-fields.adoc[]
----

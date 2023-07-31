@@ -16,7 +16,6 @@ configurations {
 	compileOnly {
 		extendsFrom annotationProcessor
 	}
-	asciidoctorExt
 }
 
 repositories {
@@ -28,69 +27,22 @@ ext {
 }
 
 dependencies {
-	// SpringBoot
-	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
-	implementation 'org.springframework.boot:spring-boot-starter-webflux'
-
-	// lombok
+	implementation 'org.springframework.boot:spring-boot-starter-web'
 	compileOnly 'org.projectlombok:lombok'
-	annotationProcessor 'org.projectlombok:lombok'
-
-	// h2
 	runtimeOnly 'com.h2database:h2'
-
-	// mysql
-	runtimeOnly 'com.mysql:mysql-connector-j'
-
-	// test
+	annotationProcessor 'org.projectlombok:lombok'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-
-	// RESTDocs
-	asciidoctorExt 'org.springframework.restdocs:spring-restdocs-asciidoctor'
 	testImplementation 'org.springframework.restdocs:spring-restdocs-mockmvc'
-
-	// for Mac M1
-	implementation 'io.netty:netty-resolver-dns-native-macos:4.1.68.Final:osx-aarch_64'
-
-	// json
-	implementation 'org.json:json:20230227'
-
-	// jwt
-	implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
-	runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
-	runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
-
-	// @ConfigurationProperties
-	annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
 }
 
-test {
+tasks.named('test') {
 	outputs.dir snippetsDir
 	useJUnitPlatform()
 }
 
-asciidoctor {
+tasks.named('asciidoctor') {
 	inputs.dir snippetsDir
-	configurations 'asciidoctorExt'
-	sources {
-		include("**/index.adoc")
-	}
-	baseDirFollowsSourceFile()
 	dependsOn test
-}
-asciidoctor.doFirst {
-	delete file('src/main/resources/static/docs')
-}
-
-
-task copyDocument(type: Copy) {
-	dependsOn asciidoctor
-	from file("build/docs/asciidoc/index.html")
-	into file("src/main/resources/static")
-}
-
-bootJar {
-	dependsOn copyDocument
 }

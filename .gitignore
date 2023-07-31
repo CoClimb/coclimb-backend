@@ -1,9 +1,6 @@
 **/build/
 !src/**/build/
 
-# secret configurations
-src/main/resources/application-secret.yml
-
 # Ignore Gradle GUI config
 gradle-app.setting
 a
