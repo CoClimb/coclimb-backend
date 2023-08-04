@@ -3,7 +3,6 @@ package swm.s3.coclimb.api.adapter.out.instagram;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
-import org.json.JSONObject;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
@@ -19,6 +18,7 @@ import swm.s3.coclimb.api.exception.errortype.instagram.IssueInstagramShortLived
 import swm.s3.coclimb.api.exception.errortype.instagram.RefreshInstagramTokenFail;
 import swm.s3.coclimb.api.exception.errortype.instagram.RetrieveInstagramMediaFail;
 
+import java.util.Arrays;
 import java.util.List;
 
 
@@ -112,11 +112,8 @@ public class InstagramRestApi {
                     }
                 }).block();
 
-        JSONObject jsonObject = new JSONObject(response);
-
         try {
-            return objectMapper.readValue(jsonObject.getJSONArray("data").toString(),
-                    objectMapper.getTypeFactory().constructCollectionType(List.class, InstagramMediaResponseDto.class));
+            return Arrays.asList(objectMapper.readValue(response, InstagramMediaResponseDto[].class));
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
