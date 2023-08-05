@@ -5,6 +5,7 @@ import lombok.Getter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import swm.s3.coclimb.config.aspect.LogTraceAspect;
+import swm.s3.coclimb.config.aspect.LogTraceImpl;
 
 import javax.crypto.SecretKey;
 import java.util.Base64;
@@ -24,6 +25,6 @@ public class AppConfig {
 
     @Bean
     public LogTraceAspect logTraceAspect() {
-        return new LogTraceAspect();
+        return new LogTraceAspect(new LogTraceImpl());
     }
 }

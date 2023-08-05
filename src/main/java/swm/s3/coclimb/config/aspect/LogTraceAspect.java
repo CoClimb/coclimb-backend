@@ -5,12 +5,32 @@ import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
-
-import java.util.UUID;
+import org.springframework.core.annotation.Order;
 
 @Slf4j
 @Aspect
+@Order(1)
 public class LogTraceAspect {
+
+    private final LogTrace logTrace;
+
+    public LogTraceAspect(LogTrace logTrace) {
+        this.logTrace = logTrace;
+    }
+
+    @Around("all() && exceptFinal() && exceptConfig()")
+    public Object traceLog(ProceedingJoinPoint joinPoint) throws Throwable {
+
+        TraceStatus traceStatus = logTrace.begin(joinPoint.getSignature().toShortString());
+        try {
+            Object result = joinPoint.proceed();
+            logTrace.end(traceStatus,null);
+            return result;
+        } catch (Exception e) {
+            logTrace.end(traceStatus,e);
+            throw e;
+        }
+    }
 
     @Pointcut("execution(* swm.s3.coclimb..*(..))")
     private void all(){}
@@ -18,21 +38,7 @@ public class LogTraceAspect {
     private void api(){}
     @Pointcut("!execution(* swm.s3.coclimb.api.adapter.out.instagram.InstagramOAuthRecord..*(..))")
     private void exceptFinal(){}
+
     @Pointcut("!execution(* swm.s3.coclimb.config.*Config..*(..))")
     private void exceptConfig(){}
-
-    @Around("all() && exceptFinal() && exceptConfig()")
-    public Object traceLog(ProceedingJoinPoint joinPoint) throws Throwable {
-        String logId = UUID.randomUUID().toString().substring(0,8);
-
-        log.info("[{}] begin = {}",logId,joinPoint.getSignature().toShortString());
-        long startAt = System.currentTimeMillis();
-
-        Object result = joinPoint.proceed();
-
-        long resultTime = System.currentTimeMillis()-startAt;
-        log.info("[{}] end = {}, time = {}ms",logId,joinPoint.getSignature().toShortString(),resultTime);
-
-        return result;
-    }
 }
