@@ -1,4 +1,4 @@
-package swm.s3.coclimb.config.aspect;
+package swm.s3.coclimb.config.aspect.logtrace;
 
 import lombok.Getter;
 

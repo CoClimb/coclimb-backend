@@ -4,8 +4,8 @@ import io.jsonwebtoken.security.Keys;
 import lombok.Getter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
-import swm.s3.coclimb.config.aspect.LogTraceAspect;
-import swm.s3.coclimb.config.aspect.LogTraceImpl;
+import swm.s3.coclimb.config.aspect.logtrace.LogTraceAspect;
+import swm.s3.coclimb.config.aspect.logtrace.LogTraceImpl;
 
 import javax.crypto.SecretKey;
 import java.util.Base64;
