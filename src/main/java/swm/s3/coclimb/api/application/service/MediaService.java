@@ -54,6 +54,7 @@ public class MediaService implements MediaQuery, MediaCommand {
     }
 
     @Override
+    @Transactional
     public void createMedia(MediaCreateRequestDto mediaCreateRequestDto) {
         if(isInstagramMediaIdDuplicated(mediaCreateRequestDto.getInstagramMediaId())) {
             throw new InstagramMediaIdConflict();
