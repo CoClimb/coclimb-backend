@@ -12,11 +12,13 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import swm.s3.coclimb.api.exception.errortype.basetype.CustomException;
+import swm.s3.coclimb.config.aspect.logtrace.NoLog;
 
 import java.util.HashMap;
 import java.util.Map;
 
 @RestControllerAdvice
+@NoLog
 public class ExceptionControllerAdvice {
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)

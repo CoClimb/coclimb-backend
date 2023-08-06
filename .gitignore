@@ -1,5 +1,7 @@
 **/build/
 !src/**/build/
+# server logs
+logs/
 
 # secret configurations
 src/main/resources/application-secret.yml

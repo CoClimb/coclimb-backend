@@ -14,5 +14,17 @@ spring:
       hibernate:
         show_sql: true
         format_sql: true
-logging.level:
-  org.hibernate.SQL: info
+logging:
+  level:
+    swm.s3.coclimb: debug
+    sql: debug
+  pattern:
+    file: "[%d{HH:mm:ss.SSS}][%-5level][%logger.%method:line%line] - %msg%n"
+  file:
+    name: ./logs/coclimb.log
+  logback:
+    rollingpolicy:
+      max-file-size: 500KB # 로그 파일의 최대 크기이며, 크기가 넘어가면 새로운 로그파일 작성
+      max-history: 30 #로그 파일 최대 보관 일자
+      total-size-cap: 1000MB
+      file-name-pattern: ./logs/coclimb.%d{yyyy-MM-dd}.%i.log
