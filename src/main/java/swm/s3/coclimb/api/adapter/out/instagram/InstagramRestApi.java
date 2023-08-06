@@ -18,8 +18,8 @@ import swm.s3.coclimb.api.exception.errortype.instagram.IssueInstagramShortLived
 import swm.s3.coclimb.api.exception.errortype.instagram.RefreshInstagramTokenFail;
 import swm.s3.coclimb.api.exception.errortype.instagram.RetrieveInstagramMediaFail;
 
-import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 
 @Component
@@ -113,7 +113,9 @@ public class InstagramRestApi {
                 }).block();
 
         try {
-            return Arrays.asList(objectMapper.readValue(response, InstagramMediaResponseDto[].class));
+            Map<String, Object> map = objectMapper.readValue(response, Map.class);
+            return objectMapper.convertValue(map.get("data"),
+                    objectMapper.getTypeFactory().constructCollectionType(List.class, InstagramMediaResponseDto.class));
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
