@@ -18,10 +18,10 @@ public class LogTraceAspect {
         this.logTrace = logTrace;
     }
 
-    @Around("all() && exceptFinal() && exceptConfig()")
+    @Around("all() && !isFinal() && !isConfig() && !hasNoLog(NoLog)")
     public Object traceLog(ProceedingJoinPoint joinPoint) throws Throwable {
 
-        TraceStatus traceStatus = logTrace.begin(joinPoint.getSignature().toShortString());
+        TraceStatus traceStatus = logTrace.begin(joinPoint.getSignature().toShortString(),joinPoint.getArgs());
         try {
             Object result = joinPoint.proceed();
             logTrace.end(traceStatus,null);
@@ -34,11 +34,15 @@ public class LogTraceAspect {
 
     @Pointcut("execution(* swm.s3.coclimb..*(..))")
     private void all(){}
-    @Pointcut("execution(* swm.s3.coclimb.api..*(..))")
-    private void api(){}
-    @Pointcut("!execution(* swm.s3.coclimb.api.adapter.out.instagram.InstagramOAuthRecord..*(..))")
-    private void exceptFinal(){}
+//    @Pointcut("execution(* swm.s3.coclimb.api..*(..))")
+//    private void api(){}
+    @Pointcut("target(swm.s3.coclimb.api.adapter.out.instagram.InstagramOAuthRecord)")
+    private void isFinal(){}
+    @Pointcut("within(swm.s3.coclimb.config.*Config)")
+    private void isConfig(){}
+    @Pointcut("@annotation(noLog) || @target(noLog)")
+    private void hasNoLog(NoLog noLog) {}
+//    @Pointcut("execution(* swm.s3.coclimb..*JpaRepository.*(..))")
+//    private void isJpaRepository(){}
 
-    @Pointcut("!execution(* swm.s3.coclimb.config.*Config..*(..))")
-    private void exceptConfig(){}
 }
