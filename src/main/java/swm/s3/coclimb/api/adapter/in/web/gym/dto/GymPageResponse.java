@@ -37,11 +37,12 @@ public class GymPageResponse {
         private String name;
         private String address;
         private String phone;
-
+        private String image;
         private GymResponse(Gym gym) {
             this.name = gym.getName();
             this.address = gym.getAddress();
             this.phone = gym.getPhone();
+            this.image = gym.getImage();
         }
     }
 }
