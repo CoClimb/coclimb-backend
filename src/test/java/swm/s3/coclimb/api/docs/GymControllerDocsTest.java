@@ -90,7 +90,11 @@ class GymControllerDocsTest extends RestDocsTestSupport {
                 .name(name)
                 .address("주소")
                 .phone("02-000-0000")
-                .location(Location.of(0f,0f))
+                .image("imageurl")
+                .instagramUrl("instaUrl")
+                .homepageUrl("homepageUrl")
+                .gradingSystem("gradingSystem")
+                .location(Location.of(0f, 0f))
                 .build());
     }
     @Test
@@ -193,7 +197,15 @@ class GymControllerDocsTest extends RestDocsTestSupport {
                         fieldWithPath("address").type(JsonFieldType.STRING)
                                 .description("주소"),
                         fieldWithPath("phone").type(JsonFieldType.STRING)
-                                .description("연락처")
+                                .description("연락처"),
+                        fieldWithPath("image").type(JsonFieldType.STRING)
+                                .description("대표 이미지 url"),
+                        fieldWithPath("instagramUrl").type(JsonFieldType.STRING)
+                                .description("인스타그램 url"),
+                        fieldWithPath("homepageUrl").type(JsonFieldType.STRING)
+                                .description("홈페이지 url"),
+                        fieldWithPath("gradingSystem").type(JsonFieldType.STRING)
+                                .description("매장 난이도 분류 체")
                 )
         ));
 
@@ -237,13 +249,8 @@ class GymControllerDocsTest extends RestDocsTestSupport {
     @DisplayName("페이징된 암장들을 조회하는 API")
     void getPagedGyms() throws Exception {
         // given
-        gymJpaRepository.saveAll(IntStream.range(0, 10)
-                .mapToObj(i -> Gym.builder()
-                        .name("암장" + i)
-                        .address("주소")
-                        .phone("010-1111-1111")
-                        .build())
-                .toList());
+        IntStream.range(0, 10)
+                .forEach(i -> createTestGym("암장" + i));
 
         // when, then
         ResultActions result = mockMvc.perform(MockMvcRequestBuilders.get("/gyms")
@@ -269,6 +276,8 @@ class GymControllerDocsTest extends RestDocsTestSupport {
                                 .description("주소"),
                         fieldWithPath("gyms[].phone").type(JsonFieldType.STRING)
                                 .description("전화번호"),
+                        fieldWithPath("gyms[].image").type(JsonFieldType.STRING)
+                                .description("대표 이미지"),
                         fieldWithPath("page").type(JsonFieldType.NUMBER)
                                 .description("페이지 번호"),
                         fieldWithPath("size").type(JsonFieldType.NUMBER)
