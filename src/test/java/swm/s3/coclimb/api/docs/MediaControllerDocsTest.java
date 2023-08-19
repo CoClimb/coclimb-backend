@@ -8,11 +8,13 @@ import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.test.web.servlet.ResultActions;
 import swm.s3.coclimb.api.RestDocsTestSupport;
 import swm.s3.coclimb.api.adapter.in.web.media.MediaController;
+import swm.s3.coclimb.api.adapter.in.web.media.dto.MediaCreateInstagramInfo;
+import swm.s3.coclimb.api.adapter.in.web.media.dto.MediaCreateProblemInfo;
 import swm.s3.coclimb.api.adapter.in.web.media.dto.MediaCreateRequest;
 import swm.s3.coclimb.api.adapter.out.persistence.media.MediaJpaRepository;
 import swm.s3.coclimb.api.adapter.out.persistence.user.UserJpaRepository;
 import swm.s3.coclimb.domain.media.Media;
-import swm.s3.coclimb.domain.media.ProblemInfo;
+import swm.s3.coclimb.domain.media.MediaProblemInfo;
 import swm.s3.coclimb.domain.user.User;
 
 import java.util.stream.Collectors;
@@ -55,14 +57,19 @@ public class MediaControllerDocsTest extends RestDocsTestSupport {
                 .mediaType("VIDEO")
                 .mediaUrl("mediaUrl")
                 .thumbnailUrl("thumbnailUrl")
-                .instagramMediaId("instagramMediaId")
-                .instagramPermalink("instagramPermalink")
-                .gymName("gymName")
-                .problemColor("color")
-                .problemType("problemType")
-                .perceivedDifficulty("perceivedDifficulty")
-                .isClear(true)
+                .problem(MediaCreateProblemInfo.builder()
+                        .gymName("gymName")
+                        .color("color")
+                        .perceivedDifficulty("perceivedDifficulty")
+                        .type("problemType")
+                        .isClear(true)
+                        .build())
+                .instagram(MediaCreateInstagramInfo.builder()
+                        .mediaId("instagramMediaId")
+                        .permalink("instagramPermalink")
+                        .build())
                 .build();
+
         userJpaRepository.save(User.builder().build());
         Long userId = userJpaRepository.findAll().get(0).getId();
 
@@ -75,7 +82,7 @@ public class MediaControllerDocsTest extends RestDocsTestSupport {
 
         //then
         result.andExpect(status().isCreated());
-        assertThat(media.getProblemInfo().getColor()).isEqualTo("color");
+        assertThat(media.getMediaProblemInfo().getColor()).isEqualTo("color");
 
         //docs
         result.andDo(document("media-create",
@@ -93,31 +100,29 @@ public class MediaControllerDocsTest extends RestDocsTestSupport {
                                 .description("미디어 타입"),
                         fieldWithPath("mediaUrl")
                                 .type(JsonFieldType.STRING)
-                                .description("미디어 URL"),
+                                .description("미디어 CDN URL"),
                         fieldWithPath("thumbnailUrl")
                                 .type(JsonFieldType.STRING)
-                                .description("미디어 썸네일 URL"),
-                        fieldWithPath("instagramMediaId")
-                                .type(JsonFieldType.STRING)
+                                .description("미디어 썸네일 CDN URL"),
+                        fieldWithPath("instagram.mediaId")
+                                .type(JsonFieldType.STRING).optional()
                                 .description("인스타그램 미디어 ID"),
-                        fieldWithPath("instagramPermalink")
-                                .type(JsonFieldType.STRING)
-                                .description("인스타그램 미디어 URL"),
-                        fieldWithPath("gymName")
+                        fieldWithPath("instagram.permalink")
+                                .type(JsonFieldType.STRING).optional()
+                                .description("인스타그램 미디어 게시물 URL"),
+                        fieldWithPath("problem.gymName")
                                 .type(JsonFieldType.STRING)
                                 .description("미디어 내 암장명"),
-                        fieldWithPath("problemColor")
+                        fieldWithPath("problem.color")
                                 .type(JsonFieldType.STRING)
                                 .description("문제 색상"),
-                        fieldWithPath("problemType")
-                                .type(JsonFieldType.STRING)
-                                .optional()
+                        fieldWithPath("problem.type")
+                                .type(JsonFieldType.STRING).optional()
                                 .description("문제 타입"),
-                        fieldWithPath("perceivedDifficulty")
-                                .type(JsonFieldType.STRING)
-                                .optional()
+                        fieldWithPath("problem.perceivedDifficulty")
+                                .type(JsonFieldType.STRING).optional()
                                 .description("체감 난이도"),
-                        fieldWithPath("isClear")
+                        fieldWithPath("problem.isClear")
                                 .type(JsonFieldType.BOOLEAN)
                                 .description("문제 클리어 여부")
                 )));
@@ -131,7 +136,7 @@ public class MediaControllerDocsTest extends RestDocsTestSupport {
 
         mediaJpaRepository.saveAll(IntStream.range(0, 10).mapToObj(i -> Media.builder()
                         .thumbnailUrl("thumbnailUrl" + String.valueOf(i))
-                        .problemInfo(ProblemInfo.builder()
+                        .mediaProblemInfo(MediaProblemInfo.builder()
                                 .gymName("gym" + String.valueOf(i))
                                 .color("color" + String.valueOf(i))
                                 .build())
@@ -201,7 +206,7 @@ public class MediaControllerDocsTest extends RestDocsTestSupport {
         mediaJpaRepository.saveAll(IntStream.range(0, 10).mapToObj(i -> Media.builder()
                         .userId(userId)
                         .thumbnailUrl("thumbnailUrl" + String.valueOf(i))
-                        .problemInfo(ProblemInfo.builder()
+                        .mediaProblemInfo(MediaProblemInfo.builder()
                                 .gymName("gym" + String.valueOf(i))
                                 .color("color" + String.valueOf(i))
                                 .build())

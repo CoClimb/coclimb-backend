@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Embeddable
 @NoArgsConstructor
 @Getter
-public class ProblemInfo {
+public class MediaProblemInfo {
     @Column
     private String gymName;
     @Column(name = "problem_color")
@@ -23,7 +23,7 @@ public class ProblemInfo {
     private String type;
 
     @Builder
-    public ProblemInfo(String gymName, String color, Boolean isClear, String perceivedDifficulty, String type) {
+    public MediaProblemInfo(String gymName, String color, Boolean isClear, String perceivedDifficulty, String type) {
         this.gymName = gymName;
         this.color = color;
         this.isClear = isClear;

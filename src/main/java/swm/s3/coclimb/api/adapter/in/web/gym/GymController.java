@@ -98,7 +98,7 @@ public class GymController {
     @GetMapping("/gyms/nearby")
     public ResponseEntity<GymNearbyResponse> getNearbyGyms(@RequestParam @Min(-90)  @Max(90) float latitude,
                                                            @RequestParam @Min(-180) @Max(180) float longitude,
-                                                           @RequestParam @Min(0) float distance) {
+                                                           @RequestParam @Min(0) @Max(15) float distance) {
 
         List<GymNearbyResponseDto> nearbyGyms = gymQuery.getNearbyGyms(latitude, longitude, distance);
 

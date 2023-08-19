@@ -11,6 +11,7 @@ import swm.s3.coclimb.api.application.port.in.media.dto.MediaPageRequestDto;
 import swm.s3.coclimb.api.exception.errortype.media.InstagramMediaIdConflict;
 import swm.s3.coclimb.domain.media.InstagramMediaInfo;
 import swm.s3.coclimb.domain.media.Media;
+import swm.s3.coclimb.domain.media.MediaProblemInfo;
 
 import java.util.List;
 import java.util.stream.IntStream;
@@ -53,8 +54,12 @@ class MediaServiceTest extends IntegrationTestSupport {
 
         MediaCreateRequestDto mediaCreateRequestDto = MediaCreateRequestDto.builder()
                 .userId(userId)
-                .instagramPermalink("instagramPermalink")
-                .problemColor("problemColor")
+                .instagramMediaInfo(InstagramMediaInfo.builder()
+                        .permalink("instagramPermalink")
+                        .build())
+                .mediaProblemInfo(MediaProblemInfo.builder()
+                        .color("problemColor")
+                        .build())
                 .build();
 
         //when
@@ -64,7 +69,7 @@ class MediaServiceTest extends IntegrationTestSupport {
         //then
         assertThat(sut.getUserId()).isEqualTo(userId);
         assertThat(sut.getInstagramMediaInfo().getPermalink()).isEqualTo("instagramPermalink");
-        assertThat(sut.getProblemInfo().getColor()).isEqualTo("problemColor");
+        assertThat(sut.getMediaProblemInfo().getColor()).isEqualTo("problemColor");
     }
 
     @Test
@@ -74,7 +79,9 @@ class MediaServiceTest extends IntegrationTestSupport {
         String instagramMediaId = "instagramMediaId";
 
         MediaCreateRequestDto mediaCreateRequestDto = MediaCreateRequestDto.builder()
-                .instagramMediaId(instagramMediaId)
+                .instagramMediaInfo(InstagramMediaInfo.builder()
+                        .id(instagramMediaId)
+                        .build())
                 .build();
 
         mediaJpaRepository.save(Media.builder()

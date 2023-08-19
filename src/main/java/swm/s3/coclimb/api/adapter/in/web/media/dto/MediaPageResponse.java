@@ -42,8 +42,8 @@ public class MediaPageResponse {
         private MediaInfo(Media media) {
             this.id = media.getId();
             this.thumbnailUrl = media.getThumbnailUrl();
-            this.gymName = media.getProblemInfo().getGymName();
-            this.problemColor = media.getProblemInfo().getColor();
+            this.gymName = media.getMediaProblemInfo().getGymName();
+            this.problemColor = media.getMediaProblemInfo().getColor();
         }
     }
 }

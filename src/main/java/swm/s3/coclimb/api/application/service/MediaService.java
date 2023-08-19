@@ -15,6 +15,7 @@ import swm.s3.coclimb.api.application.port.out.instagram.InstagramDataPort;
 import swm.s3.coclimb.api.application.port.out.persistence.media.MediaLoadPort;
 import swm.s3.coclimb.api.application.port.out.persistence.media.MediaUpdatePort;
 import swm.s3.coclimb.api.exception.errortype.media.InstagramMediaIdConflict;
+import swm.s3.coclimb.domain.media.InstagramMediaInfo;
 import swm.s3.coclimb.domain.media.Media;
 
 import java.util.ArrayList;
@@ -60,7 +61,8 @@ public class MediaService implements MediaQuery, MediaCommand {
     @Override
     @Transactional
     public void createMedia(MediaCreateRequestDto mediaCreateRequestDto) {
-        if(isInstagramMediaIdDuplicated(mediaCreateRequestDto.getInstagramMediaId())) {
+        InstagramMediaInfo instagramMediaInfo = mediaCreateRequestDto.getInstagramMediaInfo();
+        if(instagramMediaInfo != null && isInstagramMediaIdDuplicated(instagramMediaInfo.getId())) {
             throw new InstagramMediaIdConflict();
         }
         mediaUpdatePort.save(mediaCreateRequestDto.toEntity());

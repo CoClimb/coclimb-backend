@@ -309,7 +309,7 @@ class GymControllerDocsTest extends RestDocsTestSupport {
                 queryParameters(
                         parameterWithName("latitude").description("위도"),
                         parameterWithName("longitude").description("경도"),
-                        parameterWithName("distance").description("거리 (km)")
+                        parameterWithName("distance").description("거리 (단위 : km, 최대 : 15)")
                 ),
                 responseFields(
                         fieldWithPath("gyms").type(JsonFieldType.ARRAY)

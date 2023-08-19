@@ -1,5 +1,5 @@
 [[media-page]]
-=== 신규 미디어 생성
+=== 신규 미디어 등록
 ==== HTTP Request
 include::{snippets}/media-create/http-request.adoc[]
 include::{snippets}/media-create/request-headers.adoc[]
