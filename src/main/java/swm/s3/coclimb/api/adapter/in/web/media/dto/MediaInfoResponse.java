@@ -40,7 +40,7 @@ public class MediaInfoResponse {
     public static MediaInfoResponse of(Media media) {
         return MediaInfoResponse.builder()
                 .mediaId(media.getId())
-                .username(media.getUsername())
+                .username(media.getUser().getName())
                 .mediaType(media.getMediaType())
                 .platform(media.getPlatform())
                 .mediaUrl(media.getMediaUrl())

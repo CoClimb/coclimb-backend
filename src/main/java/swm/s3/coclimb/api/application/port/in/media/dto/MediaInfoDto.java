@@ -28,7 +28,7 @@ public class MediaInfoDto {
     public static MediaInfoDto of(Media media){
         return MediaInfoDto.builder()
                 .platform(media.getPlatform())
-                .username(media.getUsername())
+                .username(media.getUser().getName())
                 .id(media.getId())
                 .mediaType(media.getMediaType())
                 .mediaUrl(media.getMediaUrl())

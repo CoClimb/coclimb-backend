@@ -19,6 +19,7 @@ import swm.s3.coclimb.domain.media.MediaProblemInfo;
 import swm.s3.coclimb.domain.user.User;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -145,9 +146,11 @@ public class MediaControllerDocsTest extends RestDocsTestSupport {
     void getPagedMedias() throws Exception {
         //given
         int pageSize = 5;
+        IntStream.range(0, 10).forEach(i -> userJpaRepository.save(User.builder().name("user" + String.valueOf(i)).build()));
+        List<User> users = userJpaRepository.findAll();
 
         mediaJpaRepository.saveAll(IntStream.range(0, 10).mapToObj(i -> Media.builder()
-                        .username("username" + String.valueOf(i))
+                        .user(users.get(i))
                         .thumbnailUrl("thumbnailUrl" + String.valueOf(i))
                         .mediaProblemInfo(MediaProblemInfo.builder()
                                 .gymName("gym" + String.valueOf(i))
@@ -216,12 +219,11 @@ public class MediaControllerDocsTest extends RestDocsTestSupport {
         //given
         int pageSize = 5;
 
-        userJpaRepository.save(User.builder().build());
-        Long userId = userJpaRepository.findAll().get(0).getId();
+        userJpaRepository.save(User.builder().name("me").build());
+        User user = userJpaRepository.findAll().get(0);
 
         mediaJpaRepository.saveAll(IntStream.range(0, 10).mapToObj(i -> Media.builder()
-                        .userId(userId)
-                        .username("me")
+                        .user(user)
                         .thumbnailUrl("thumbnailUrl" + String.valueOf(i))
                         .mediaProblemInfo(MediaProblemInfo.builder()
                                 .gymName("gym" + String.valueOf(i))
@@ -233,7 +235,7 @@ public class MediaControllerDocsTest extends RestDocsTestSupport {
         //when
         //then
         ResultActions result = mockMvc.perform(get("/medias/me")
-                        .header("Authorization", jwtManager.issueToken(String.valueOf(userId)))
+                        .header("Authorization", jwtManager.issueToken(String.valueOf(user.getId())))
                         .param("page", "0")
                         .param("size", String.valueOf(pageSize)))
                 .andExpect(status().isOk())
@@ -293,11 +295,13 @@ public class MediaControllerDocsTest extends RestDocsTestSupport {
     @DisplayName("미디어 ID로 미디어 정보 조회하는 API")
     void getMediaById() throws Exception {
         //given
+        userJpaRepository.save(User.builder().name("username").build());
+        User user = userJpaRepository.findAll().get(0);
+
         Media media = mediaJpaRepository.save(Media.builder()
                 .thumbnailUrl("thumbnailUrl")
-                .username("username")
+                .user(user)
                 .mediaUrl("mediaUrl")
-                .username("username")
                 .mediaType("VIDEO")
                 .description("description")
                 .platform("INSTAGRAM")

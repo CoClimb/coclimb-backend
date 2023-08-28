@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.Length;
 import swm.s3.coclimb.domain.BaseTimeEntity;
+import swm.s3.coclimb.domain.user.User;
 
 @Entity
 @Getter
@@ -17,9 +18,9 @@ public class Media extends BaseTimeEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // common attributes
-    private Long userId;
-    private String username;
+    @ManyToOne
+    @JoinColumn(name="user_id")
+    private User user;
     private String mediaType;
     private String platform; // instagram or original
     @Length(max = 2048)
@@ -29,7 +30,6 @@ public class Media extends BaseTimeEntity {
     @Length(max = 1024)
     private String description;
 
-    // for instagram
     @Embedded
     private InstagramMediaInfo instagramMediaInfo;
 
@@ -37,15 +37,14 @@ public class Media extends BaseTimeEntity {
     private MediaProblemInfo mediaProblemInfo;
 
     @Builder
-    public Media(Long userId, String mediaType, String platform, String mediaUrl, String thumbnailUrl, InstagramMediaInfo instagramMediaInfo, String username, MediaProblemInfo mediaProblemInfo, String description) {
-        this.userId = userId;
+    public Media(User user, String mediaType, String platform, String mediaUrl, String thumbnailUrl, String description, InstagramMediaInfo instagramMediaInfo, MediaProblemInfo mediaProblemInfo) {
+        this.user = user;
         this.mediaType = mediaType;
         this.platform = platform;
         this.mediaUrl = mediaUrl;
         this.thumbnailUrl = thumbnailUrl;
-        this.instagramMediaInfo = instagramMediaInfo;
-        this.username = username;
-        this.mediaProblemInfo = mediaProblemInfo;
         this.description = description;
+        this.instagramMediaInfo = instagramMediaInfo;
+        this.mediaProblemInfo = mediaProblemInfo;
     }
 }

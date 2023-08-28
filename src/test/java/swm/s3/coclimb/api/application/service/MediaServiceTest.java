@@ -13,6 +13,7 @@ import swm.s3.coclimb.api.exception.errortype.media.InstagramMediaIdConflict;
 import swm.s3.coclimb.domain.media.InstagramMediaInfo;
 import swm.s3.coclimb.domain.media.Media;
 import swm.s3.coclimb.domain.media.MediaProblemInfo;
+import swm.s3.coclimb.domain.user.User;
 
 import java.util.List;
 import java.util.stream.IntStream;
@@ -49,10 +50,12 @@ class MediaServiceTest extends IntegrationTestSupport {
     @DisplayName("미디어를 저장할 수 있다.")
     void save() {
         //given
-        Long userId = 1L;
+        userJpaRepository.save(User.builder().build());
+        Long userId = userJpaRepository.findAll().get(0).getId();
+        User user = userJpaRepository.findById(userId).get();
 
         MediaCreateRequestDto mediaCreateRequestDto = MediaCreateRequestDto.builder()
-                .userId(userId)
+                .user(user)
                 .instagramMediaInfo(InstagramMediaInfo.builder()
                         .permalink("instagramPermalink")
                         .build())
@@ -66,7 +69,7 @@ class MediaServiceTest extends IntegrationTestSupport {
         Media sut = mediaJpaRepository.findByUserId(userId).get(0);
 
         //then
-        assertThat(sut.getUserId()).isEqualTo(userId);
+        assertThat(sut.getUser().getId()).isEqualTo(userId);
         assertThat(sut.getInstagramMediaInfo().getPermalink()).isEqualTo("instagramPermalink");
         assertThat(sut.getMediaProblemInfo().getColor()).isEqualTo("problemColor");
     }
@@ -135,11 +138,18 @@ class MediaServiceTest extends IntegrationTestSupport {
     @DisplayName("UserId로 미디어를 페이징 조회할 수 있다.")
     void getPagedMediasByUserId() {
         //given
+        userJpaRepository.save(User.builder().build());
+        userJpaRepository.save(User.builder().build());
+        Long userId1 = userJpaRepository.findAll().get(0).getId();
+        Long userId2 = userJpaRepository.findAll().get(1).getId();
+        User user1 = userJpaRepository.findById(userId1).get();
+        User user2 = userJpaRepository.findById(userId2).get();
+
         mediaJpaRepository.saveAll(IntStream.range(0,5).mapToObj(i -> Media.builder()
-                .userId(1L)
+                .user(user1)
                 .build()).toList());
         mediaJpaRepository.saveAll(IntStream.range(0,5).mapToObj(i -> Media.builder()
-                .userId(2L)
+                .user(user2)
                 .build()).toList());
 
         MediaPageRequestDto mediaPageRequestDto = MediaPageRequestDto.builder()
@@ -148,20 +158,20 @@ class MediaServiceTest extends IntegrationTestSupport {
                 .build();
 
         //when
-        Page<Media> sut1 = mediaService.getPagedMediasByUserId(1L, mediaPageRequestDto);
-        Page<Media> sut2 = mediaService.getPagedMediasByUserId(2L, mediaPageRequestDto);
+        Page<Media> sut1 = mediaService.getPagedMediasByUserId(userId1, mediaPageRequestDto);
+        Page<Media> sut2 = mediaService.getPagedMediasByUserId(userId2, mediaPageRequestDto);
 
         //then
         assertThat(sut1.getTotalElements()).isEqualTo(5);
         assertThat(sut1.getTotalPages()).isEqualTo(1);
         assertThat(sut1.getContent()).hasSize(5)
-                .extracting("userId")
-                .containsOnly(1L);
+                .extracting("user.id")
+                .containsOnly(userId1);
         assertThat(sut2.getTotalElements()).isEqualTo(5);
         assertThat(sut2.getTotalPages()).isEqualTo(1);
         assertThat(sut2.getContent()).hasSize(5)
-                .extracting("userId")
-                .containsOnly(2L);
+                .extracting("user.id")
+                .containsOnly(userId2);
     }
 
     @Test

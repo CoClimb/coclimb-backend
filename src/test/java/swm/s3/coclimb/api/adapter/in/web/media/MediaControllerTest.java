@@ -75,8 +75,9 @@ class MediaControllerTest extends ControllerTestSupport {
         int pageSize = 5;
 
         Page<Media> page = new PageImpl<>(IntStream.range(0, pageSize).mapToObj(i -> Media.builder()
-                .mediaProblemInfo(MediaProblemInfo.builder().gymName("암장" + String.valueOf(i)).build())
-                .build())
+                        .user(User.builder().build())
+                        .mediaProblemInfo(MediaProblemInfo.builder().gymName("암장" + String.valueOf(i)).build())
+                        .build())
                 .collect(Collectors.toList()));
 
         given(mediaQuery.getPagedMedias(any())).willReturn(page);
@@ -107,6 +108,7 @@ class MediaControllerTest extends ControllerTestSupport {
         int pageSize = 5;
 
         Page<Media> page = new PageImpl<>(IntStream.range(0, pageSize).mapToObj(i -> Media.builder()
+                        .user(User.builder().build())
                         .mediaProblemInfo(MediaProblemInfo.builder().gymName("암장" + String.valueOf(i)).build())
                         .build())
                 .collect(Collectors.toList()));
@@ -132,7 +134,11 @@ class MediaControllerTest extends ControllerTestSupport {
     @DisplayName("미디어 ID로 미디어 정보를 조회할 수 있다.")
     void getMediaDetail() throws Exception {
         //given
-        given(mediaQuery.getMediaById(any())).willReturn(Media.builder().instagramMediaInfo(InstagramMediaInfo.builder().build()).mediaProblemInfo(MediaProblemInfo.builder().gymName("암장1").build()).build());
+        given(mediaQuery.getMediaById(any())).willReturn(Media.builder()
+                .user(User.builder().build())
+                .instagramMediaInfo(InstagramMediaInfo.builder().build())
+                .mediaProblemInfo(MediaProblemInfo.builder().gymName("암장1").build())
+                .build());
 
         //when
         //then

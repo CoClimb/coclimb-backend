@@ -40,8 +40,7 @@ public class MediaCreateRequest {
 
     public MediaCreateRequestDto toServiceDto(User user) {
         return MediaCreateRequestDto.builder()
-                .userId(user.getId())
-                .username(user.getName())
+                .user(user)
                 .mediaUrl(mediaUrl)
                 .mediaType(mediaType)
                 .thumbnailUrl(thumbnailUrl)
