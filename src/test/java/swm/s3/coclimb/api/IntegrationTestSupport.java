@@ -4,6 +4,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
+import swm.s3.coclimb.api.adapter.out.elasticsearch.ElasticsearchClientManager;
 import swm.s3.coclimb.api.adapter.out.instagram.InstagramOAuthRecord;
 import swm.s3.coclimb.api.adapter.out.instagram.InstagramRestApi;
 import swm.s3.coclimb.api.adapter.out.instagram.InstagramRestApiManager;
@@ -56,6 +57,9 @@ public abstract class IntegrationTestSupport extends TestContainerSupport{
     @Autowired protected InstagramRestApiManager instagramRestApiManager;
     @Autowired protected InstagramRestApi instagramRestApi;
 
+    // elasticsearch
+    protected ElasticsearchClientManager elasticsearchClientManager = new ElasticsearchClientManager(getTestEsClient());
+
     @AfterEach
     void clearDB() {
         gymLikeJpaRepository.deleteAllInBatch();
@@ -63,4 +67,7 @@ public abstract class IntegrationTestSupport extends TestContainerSupport{
         gymJpaRepository.deleteAllInBatch();
         userJpaRepository.deleteAllInBatch();
     }
+
+
+
 }
