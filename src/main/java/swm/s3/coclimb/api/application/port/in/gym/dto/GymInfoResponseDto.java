@@ -22,7 +22,7 @@ public class GymInfoResponseDto {
                 .address(gym.getAddress())
                 .phone(gym.getPhone())
                 .image(gym.getImage())
-                .instagramUrl(gym.getInstagramUrl())
+                .instagramUrl(gym.getInstagramId())
                 .homepageUrl(gym.getHomepageUrl())
                 .gradingSystem(gym.getGradingSystem())
                 .build();

@@ -20,7 +20,7 @@ public class Gym extends BaseTimeEntity {
     private String address;
     private String phone;
     private String image;
-    private String instagramUrl;
+    private String instagramId;
     private String homepageUrl;
     private String gradingSystem;
 
@@ -28,12 +28,13 @@ public class Gym extends BaseTimeEntity {
     private Location location;
 
     @Builder
-    public Gym(String name, String address, String phone, String image, String instagramUrl, String homepageUrl, String gradingSystem, Location location) {
+    public Gym(Long id, String name, String address, String phone, String image, String instagramId, String homepageUrl, String gradingSystem, Location location) {
+        this.id = id;
         this.name = name;
         this.address = address;
         this.phone = phone;
         this.image = image;
-        this.instagramUrl = instagramUrl;
+        this.instagramId = instagramId;
         this.homepageUrl = homepageUrl;
         this.gradingSystem = gradingSystem;
         this.location = location;
@@ -43,7 +44,7 @@ public class Gym extends BaseTimeEntity {
         this.address = null;
         this.phone = null;
         this.image = null;
-        this.instagramUrl = null;
+        this.instagramId = null;
         this.homepageUrl = null;
         this.gradingSystem = null;
         this.location = null;
@@ -54,7 +55,7 @@ public class Gym extends BaseTimeEntity {
         this.address = (updateInfo.address == null) ? address : updateInfo.address;
         this.phone = (updateInfo.phone == null) ? phone : updateInfo.phone;
         this.image = (updateInfo.image == null) ? image : updateInfo.image;
-        this.instagramUrl = (updateInfo.instagramUrl == null) ? instagramUrl : updateInfo.instagramUrl;
+        this.instagramId = (updateInfo.instagramId == null) ? instagramId : updateInfo.instagramId;
         this.homepageUrl = (updateInfo.homepageUrl == null) ? homepageUrl : updateInfo.homepageUrl;
         this.gradingSystem = (updateInfo.gradingSystem == null) ? gradingSystem : updateInfo.gradingSystem;
         this.location = (updateInfo.location == null) ? location : updateInfo.location;
