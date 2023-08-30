@@ -1,5 +1,14 @@
 package swm.s3.coclimb.api;
 
+import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.json.jackson.JacksonJsonpMapper;
+import co.elastic.clients.transport.ElasticsearchTransport;
+import co.elastic.clients.transport.rest_client.RestClientTransport;
+import org.apache.http.HttpHost;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.impl.client.BasicCredentialsProvider;
+import org.elasticsearch.client.RestClient;
 import org.junit.jupiter.api.extension.AfterAllCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.springframework.test.context.DynamicPropertyRegistry;
@@ -29,6 +38,23 @@ public class TestContainerSupport implements AfterAllCallback {
             .withPassword("test")
             .withExposedPorts(9200);
 
+    protected ElasticsearchClient getTestEsClient() {
+        BasicCredentialsProvider credentialProvider = new BasicCredentialsProvider();
+        credentialProvider.setCredentials(AuthScope.ANY,
+                new UsernamePasswordCredentials("elastic", "test"));
+
+        RestClient restClient = RestClient
+                .builder(HttpHost.create("https://localhost:" + elasticsearchContainer.getMappedPort(9200)))
+                .setHttpClientConfigCallback(hc -> hc
+                        .setSSLContext(elasticsearchContainer.createSslContextFromCa())
+                        .setDefaultCredentialsProvider(credentialProvider)
+                )
+                .build();
+
+        // Create the transport and the API client
+        ElasticsearchTransport transport = new RestClientTransport(restClient, new JacksonJsonpMapper());
+        return new ElasticsearchClient(transport);
+    }
 
     static {
         mysqlContainer.start();
