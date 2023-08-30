@@ -86,7 +86,7 @@ class GymControllerDocsTest extends RestDocsTestSupport {
                 .address("주소")
                 .phone("02-000-0000")
                 .image("imageurl")
-                .instagramUrl("instaUrl")
+                .instagramId("instaUrl")
                 .homepageUrl("homepageUrl")
                 .gradingSystem("gradingSystem")
                 .location(Location.of(0f, 0f))

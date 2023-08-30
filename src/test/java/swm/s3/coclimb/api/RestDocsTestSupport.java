@@ -8,31 +8,19 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
-import swm.s3.coclimb.api.adapter.out.persistence.gym.GymJpaRepository;
-import swm.s3.coclimb.api.adapter.out.persistence.gymlike.GymLikeJpaRepository;
-import swm.s3.coclimb.api.adapter.out.persistence.media.MediaJpaRepository;
-import swm.s3.coclimb.api.adapter.out.persistence.user.UserJpaRepository;
 import swm.s3.coclimb.config.security.JwtManager;
 
 @SpringBootTest
 @AutoConfigureMockMvc
 @AutoConfigureRestDocs
 @ActiveProfiles("test")
-public abstract class RestDocsTestSupport {
+public abstract class RestDocsTestSupport extends IntegrationTestSupport{
     @Autowired
     protected MockMvc mockMvc;
     @Autowired
     protected ObjectMapper objectMapper;
     @Autowired
     protected JwtManager jwtManager;
-    @Autowired
-    protected UserJpaRepository userJpaRepository;
-    @Autowired
-    protected MediaJpaRepository mediaJpaRepository;
-    @Autowired
-    protected GymJpaRepository gymJpaRepository;
-    @Autowired
-    protected GymLikeJpaRepository gymLikeJpaRepository;
 
     @AfterEach
     void clearDB() {

@@ -60,16 +60,14 @@ public class JwtLearningTest extends IntegrationTestSupport {
     @DisplayName("외부에서 Secret Key를 주입받아서 jwt를 생성한다.")
     void injectJwtKey() throws Exception {
         // given
-        byte[] keyBase64Encoded = appConfig.getJwtKey();
-        // Base64 인코딩된 키를 이용하여 SecretKey 객체를 만든다.
-        SecretKey secretKey = Keys.hmacShaKeyFor(keyBase64Encoded);
+        SecretKey secretKey = appConfig.getJwtProperties().getSecretKey();
         LocalDate date = LocalDate.now();
         LocalTime time = LocalTime.of(LocalTime.now().getHour(), 0);
         Timestamp iat = Timestamp.valueOf(LocalDateTime.of(date,time));
         String jws = Jwts.builder()
                 .setSubject("joe")
                 .setIssuedAt(iat)
-                .setExpiration(new Date(iat.getTime()+appConfig.getValidTime()))//만료시간 - ms단위;1000=1초
+                .setExpiration(new Date(iat.getTime()+appConfig.getJwtProperties().getValidTime()))//만료시간 - ms단위;1000=1초
                 .signWith(secretKey)
                 .compact();
 
@@ -85,16 +83,14 @@ public class JwtLearningTest extends IntegrationTestSupport {
     @DisplayName("만료된 jwt의 경우 만료 예외가 발생한다.")
     void expiredJwt() throws Exception {
         // given
-        byte[] keyBase64Encoded = appConfig.getJwtKey();
-        // Base64 인코딩된 키를 이용하여 SecretKey 객체를 만든다.
-        SecretKey secretKey = Keys.hmacShaKeyFor(keyBase64Encoded);
+        SecretKey secretKey = appConfig.getJwtProperties().getSecretKey();
         LocalDate date = LocalDate.of(2000,1,1);
         LocalTime time = LocalTime.of(LocalTime.now().getHour(), 0);
         Timestamp iat = Timestamp.valueOf(LocalDateTime.of(date,time));
         String jws = Jwts.builder()
                 .setSubject("joe")
                 .setIssuedAt(iat)
-                .setExpiration(new Date(iat.getTime()+appConfig.getValidTime()))//만료시간 - ms단위;1000=1초
+                .setExpiration(new Date(iat.getTime()+appConfig.getJwtProperties().getValidTime()))//만료시간 - ms단위;1000=1초
                 .signWith(secretKey)
                 .compact();
 
@@ -109,7 +105,7 @@ public class JwtLearningTest extends IntegrationTestSupport {
     @DisplayName("유효하지 않은 jwt의 경우 검증 예외가 발생한다.")
     void invalidJwt() throws Exception {
         // given
-        SecretKey secretKey = Keys.hmacShaKeyFor(appConfig.getJwtKey());
+        SecretKey secretKey = appConfig.getJwtProperties().getSecretKey();
         String invalidKeyPlain = "256비트 이상의 시크릿 키가 필요합니다.";
         byte[] invalidKeyBase64Encoded = Base64.getEncoder().encode(invalidKeyPlain.getBytes());
         SecretKey invalidKey = Keys.hmacShaKeyFor(invalidKeyBase64Encoded);
@@ -118,7 +114,7 @@ public class JwtLearningTest extends IntegrationTestSupport {
         String jws = Jwts.builder()
                 .setSubject("joe")
                 .setIssuedAt(iat)
-                .setExpiration(new Date(iat.getTime() + appConfig.getValidTime()))//만료시간 - ms단위;1000=1초
+                .setExpiration(new Date(iat.getTime() + appConfig.getJwtProperties().getValidTime()))//만료시간 - ms단위;1000=1초
                 .signWith(invalidKey)
                 .compact();
 
