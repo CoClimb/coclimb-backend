@@ -12,14 +12,15 @@ import java.util.Date;
 
 @Component
 public class JwtManager {
-    private final AppConfig appConfig;
+//    private final AppConfig appConfig;
     private final ServerClock serverClock;
     private final JwtParser jwtParser;
+    private final JwtProperties jwt;
 
     public JwtManager(AppConfig appConfig, ServerClock serverClock) {
-        this.appConfig = appConfig;
+        jwt = appConfig.getJwtProperties();
         this.serverClock = serverClock;
-        this.jwtParser = Jwts.parserBuilder().setSigningKey(appConfig.getSecretKey()).build();
+        this.jwtParser = Jwts.parserBuilder().setSigningKey(jwt.getSecretKey()).build();
     }
 
     public String issueToken(String subject) {
@@ -29,8 +30,8 @@ public class JwtManager {
                 .setSubject(subject)
                 .setAudience("all")
                 .setIssuedAt(iat)
-                .setExpiration(new Date(iat.getTime() + appConfig.getValidTime()))//만료시간 - ms단위;1000=1초
-                .signWith(appConfig.getSecretKey())
+                .setExpiration(new Date(iat.getTime() + jwt.getValidTime()))//만료시간 - ms단위;1000=1초
+                .signWith(jwt.getSecretKey())
                 .compact();
     }
 

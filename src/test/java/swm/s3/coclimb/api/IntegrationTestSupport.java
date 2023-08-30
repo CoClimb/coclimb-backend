@@ -24,7 +24,7 @@ import swm.s3.coclimb.config.security.JwtManager;
 
 @SpringBootTest
 @ActiveProfiles("test")
-public abstract class IntegrationTestSupport {
+public abstract class IntegrationTestSupport extends TestContainerSupport{
     // User
     @Autowired protected UserService userService;
     @Autowired protected UserJpaRepository userJpaRepository;
