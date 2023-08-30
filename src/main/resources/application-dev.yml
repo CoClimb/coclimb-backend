@@ -16,6 +16,17 @@ spring:
         format_sql: true
         create_empty_composites:
             enabled: true
+
+app-config:
+  jwt :
+    jwt-key: ${dev.jwt.jwt-key}
+    valid-time : ${dev.jwt.valid_time}
+  elastic:
+    server-url: ${dev.elastic.server-url}
+    api-key : ${dev.elastic.api-key}
+    finger-print : ${dev.elastic.finger-print}
+
+
 logging:
   level:
     swm.s3.coclimb: debug
@@ -28,5 +39,5 @@ logging:
     rollingpolicy:
       max-file-size: 500KB # 로그 파일의 최대 크기이며, 크기가 넘어가면 새로운 로그파일 작성
       max-history: 30 #로그 파일 최대 보관 일자
-      total-size-cap: 1000MB
       file-name-pattern: ./logs/coclimb.%d{yyyy-MM-dd}.%i.log
+      total-size-cap: 1000MB
