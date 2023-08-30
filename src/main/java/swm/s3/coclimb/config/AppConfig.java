@@ -1,30 +1,25 @@
 package swm.s3.coclimb.config;
 
-import io.jsonwebtoken.security.Keys;
 import lombok.Getter;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import swm.s3.coclimb.config.aspect.logtrace.LogTraceAspect;
 import swm.s3.coclimb.config.aspect.logtrace.LogTraceImpl;
-
-import javax.crypto.SecretKey;
-import java.util.Base64;
+import swm.s3.coclimb.config.security.JwtProperties;
 
 @Getter
-@ConfigurationProperties(prefix = "app-config")
+@Configuration
 public class AppConfig {
-    private final byte[] jwtKey;
-    private final long validTime;
-    private final SecretKey secretKey;
 
-    public AppConfig(String jwtKey, String validTime) {
-        this.jwtKey = Base64.getDecoder().decode(jwtKey);
-        this.secretKey = Keys.hmacShaKeyFor(this.jwtKey);
-        this.validTime = Long.parseLong(validTime)*1000;
+    private final JwtProperties jwtProperties;
+
+    public AppConfig(JwtProperties jwtProperties) {
+        this.jwtProperties = jwtProperties;
     }
 
     @Bean
     public LogTraceAspect logTraceAspect() {
         return new LogTraceAspect(new LogTraceImpl());
     }
+
 }

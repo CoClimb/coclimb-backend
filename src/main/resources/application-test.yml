@@ -2,11 +2,6 @@ spring:
   config:
     activate:
       on-profile: test
-  datasource:
-    url: ${local.db.url}
-    username: ${local.db.username}
-    password: ${local.db.password}
-    driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:
       ddl-auto: create
@@ -18,3 +13,8 @@ spring:
             enabled: true
 #logging.level:
 #  org.hibernate.SQL: debug
+
+app-config:
+  jwt :
+    jwt-key: ${test.jwt.jwt-key}
+    valid-time : ${test.jwt.valid-time}
