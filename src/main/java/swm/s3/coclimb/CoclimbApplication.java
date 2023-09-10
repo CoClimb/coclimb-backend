@@ -10,6 +10,9 @@ import swm.s3.coclimb.config.security.JwtProperties;
 @SpringBootApplication
 public class CoclimbApplication {
 
+	static {
+		System.setProperty("com.amazonaws.sdk.disableEc2Metadata", "true");
+	}
 	public static void main(String[] args) {
 		SpringApplication.run(CoclimbApplication.class, args);
 	}

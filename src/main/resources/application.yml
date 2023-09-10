@@ -7,3 +7,21 @@ oauth:
     client_id: ${secret.instagram.client_id}
     client_secret: ${secret.instagram.client_secret}
     redirect_uri: ${secret.instagram.redirect_uri}
+
+cloud:
+  aws:
+    s3:
+      bucket: ${secret.aws.bucket}
+    credentials:
+      access_key: ${secret.aws.access_key}
+      secret_key: ${secret.aws.secret_key}
+    region:
+      static: ap-northeast-2
+    stack:
+      auto: false
+    cloud_front:
+      host: ${secret.aws.cloud_front_host}
+
+file:
+  download:
+    path: /tmp/

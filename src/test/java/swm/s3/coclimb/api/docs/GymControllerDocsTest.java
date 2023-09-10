@@ -306,7 +306,7 @@ class GymControllerDocsTest extends RestDocsTestSupport {
                                 .type(JsonFieldType.STRING)
                                 .optional()
                                 .description("전화번호"),
-                        fieldWithPath("gyms[].image")
+                        fieldWithPath("gyms[].imageUrl")
                                 .type(JsonFieldType.STRING)
                                 .optional()
                                 .description("대표 이미지"),

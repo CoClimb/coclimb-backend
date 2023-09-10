@@ -5,6 +5,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import swm.s3.coclimb.api.adapter.out.filedownload.FileDownloader;
 import swm.s3.coclimb.api.adapter.out.instagram.dto.InstagramMediaResponseDto;
 import swm.s3.coclimb.api.application.port.in.media.MediaCommand;
 import swm.s3.coclimb.api.application.port.in.media.MediaQuery;
@@ -12,6 +13,8 @@ import swm.s3.coclimb.api.application.port.in.media.dto.MediaCreateRequestDto;
 import swm.s3.coclimb.api.application.port.in.media.dto.MediaDeleteRequestDto;
 import swm.s3.coclimb.api.application.port.in.media.dto.MediaPageRequestDto;
 import swm.s3.coclimb.api.application.port.in.media.dto.MediaUpdateRequestDto;
+import swm.s3.coclimb.api.application.port.out.aws.AwsS3UploadPort;
+import swm.s3.coclimb.api.application.port.out.filedownload.DownloadedFileDetail;
 import swm.s3.coclimb.api.application.port.out.instagram.InstagramDataPort;
 import swm.s3.coclimb.api.application.port.out.persistence.media.MediaLoadPort;
 import swm.s3.coclimb.api.application.port.out.persistence.media.MediaUpdatePort;
@@ -32,6 +35,8 @@ public class MediaService implements MediaQuery, MediaCommand {
     private final InstagramDataPort instagramDataPort;
     private final MediaLoadPort mediaLoadPort;
     private final MediaUpdatePort mediaUpdatePort;
+    private final FileDownloader fileDownloader;
+    private final AwsS3UploadPort awsS3UploadPort;
 
     @Override
     public List<InstagramMediaResponseDto> getMyInstagramVideos(String accessToken) {
@@ -54,7 +59,14 @@ public class MediaService implements MediaQuery, MediaCommand {
         if(instagramMediaInfo != null && isInstagramMediaIdDuplicated(instagramMediaInfo.getId())) {
             throw new InstagramMediaIdConflict();
         }
-        mediaUpdatePort.save(mediaCreateRequestDto.toEntity());
+
+        DownloadedFileDetail mediaFile = fileDownloader.downloadFile(mediaCreateRequestDto.getMediaUrl());
+        String mediaUrl = awsS3UploadPort.uploadFile(mediaFile);
+
+        DownloadedFileDetail thumbnailFile = fileDownloader.downloadFile(mediaCreateRequestDto.getThumbnailUrl());
+        String thumbnailUrl = awsS3UploadPort.uploadFile(thumbnailFile);
+
+        mediaUpdatePort.save(mediaCreateRequestDto.toEntity(mediaUrl, thumbnailUrl));
     }
 
     private boolean isInstagramMediaIdDuplicated(String instagramMediaId) {

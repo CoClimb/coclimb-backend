@@ -33,7 +33,7 @@ public class MediaCreateRequestDto {
         this.mediaProblemInfo = mediaProblemInfo;
     }
 
-    public Media toEntity() {
+    public Media toEntity(String mediaUrl, String thumbnailUrl) {
         return Media.builder()
                 .platform(platform)
                 .user(user)

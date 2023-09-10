@@ -1,20 +1,19 @@
 package swm.s3.coclimb.api.docs;
 
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.test.web.servlet.ResultActions;
 import swm.s3.coclimb.api.RestDocsTestSupport;
-import swm.s3.coclimb.api.adapter.in.web.media.MediaController;
 import swm.s3.coclimb.api.adapter.in.web.media.dto.MediaCreateInstagramInfo;
 import swm.s3.coclimb.api.adapter.in.web.media.dto.MediaCreateProblemInfo;
 import swm.s3.coclimb.api.adapter.in.web.media.dto.MediaCreateRequest;
 import swm.s3.coclimb.api.adapter.in.web.media.dto.MediaUpdateRequest;
-import swm.s3.coclimb.api.adapter.out.persistence.media.MediaJpaRepository;
-import swm.s3.coclimb.api.adapter.out.persistence.user.UserJpaRepository;
+import swm.s3.coclimb.api.adapter.out.aws.AwsS3Manager;
+import swm.s3.coclimb.api.adapter.out.filedownload.FileDownloader;
+import swm.s3.coclimb.api.application.port.out.filedownload.DownloadedFileDetail;
 import swm.s3.coclimb.domain.media.InstagramMediaInfo;
 import swm.s3.coclimb.domain.media.Media;
 import swm.s3.coclimb.domain.media.MediaProblemInfo;
@@ -26,6 +25,8 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.restdocs.headers.HeaderDocumentation.headerWithName;
 import static org.springframework.restdocs.headers.HeaderDocumentation.requestHeaders;
@@ -39,23 +40,19 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 public class MediaControllerDocsTest extends RestDocsTestSupport {
-    @Autowired
-    MediaController mediaController;
-    @Autowired
-    MediaJpaRepository mediaJpaRepository;
-    @Autowired
-    UserJpaRepository userJpaRepository;
 
-    @AfterEach
-    void tearDown() {
-        mediaJpaRepository.deleteAllInBatch();
-        userJpaRepository.deleteAllInBatch();
-    }
+    @MockBean
+    AwsS3Manager awsS3Manager;
+    @MockBean
+    FileDownloader fileDownloader;
 
     @Test
     @DisplayName("미디어를 등록하는 API")
     void createMedia() throws Exception {
         //given
+        given(fileDownloader.downloadFile(any())).willReturn(DownloadedFileDetail.builder().build());
+        given(awsS3Manager.uploadFile(any())).willReturn("https://test.com");
+
         MediaCreateRequest request = MediaCreateRequest.builder()
                 .platform("instagram")
                 .mediaType("VIDEO")

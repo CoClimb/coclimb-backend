@@ -5,12 +5,15 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Page;
 import swm.s3.coclimb.api.IntegrationTestSupport;
+import swm.s3.coclimb.api.adapter.out.aws.AwsS3Manager;
+import swm.s3.coclimb.api.adapter.out.filedownload.FileDownloader;
 import swm.s3.coclimb.api.adapter.out.instagram.InstagramRestApiManager;
 import swm.s3.coclimb.api.adapter.out.instagram.dto.InstagramMediaResponseDto;
 import swm.s3.coclimb.api.application.port.in.media.dto.MediaCreateRequestDto;
 import swm.s3.coclimb.api.application.port.in.media.dto.MediaDeleteRequestDto;
 import swm.s3.coclimb.api.application.port.in.media.dto.MediaPageRequestDto;
 import swm.s3.coclimb.api.application.port.in.media.dto.MediaUpdateRequestDto;
+import swm.s3.coclimb.api.application.port.out.filedownload.DownloadedFileDetail;
 import swm.s3.coclimb.api.exception.errortype.media.InstagramMediaIdConflict;
 import swm.s3.coclimb.domain.media.InstagramMediaInfo;
 import swm.s3.coclimb.domain.media.Media;
@@ -30,6 +33,10 @@ class MediaServiceTest extends IntegrationTestSupport {
 
     @MockBean
     private InstagramRestApiManager instagramRestApiManager;
+    @MockBean
+    private FileDownloader fileDownloader;
+    @MockBean
+    private AwsS3Manager awsS3Manager;
 
     @Test
     @DisplayName("인스타그램 미디어 타입 중 VIDEO만 필터링하여 반환한다.")
@@ -52,6 +59,9 @@ class MediaServiceTest extends IntegrationTestSupport {
     @DisplayName("미디어를 저장할 수 있다.")
     void save() {
         //given
+        given(fileDownloader.downloadFile(any())).willReturn(DownloadedFileDetail.builder().build());
+        given(awsS3Manager.uploadFile(any())).willReturn("https://test.com");
+
         userJpaRepository.save(User.builder().build());
         User user = userJpaRepository.findAll().get(0);
 
