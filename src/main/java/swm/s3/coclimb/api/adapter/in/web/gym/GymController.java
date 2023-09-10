@@ -136,11 +136,18 @@ public class GymController {
     }
 
     @GetMapping("/gyms/demo/search")
-    public ResponseEntity<GymSearchResponse> searchGyms(@RequestParam @NotNull(message = "keyword is required") String keyword) {
+    public ResponseEntity<GymSearchResponse> searchGyms(@RequestParam @NotNull(message = "keyword is requㅇred") String keyword) {
         List<GymSearchResponseDto> gyms = gymQuery.searchGyms(keyword);
 
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(GymSearchResponse.of(gyms));
+    }
+
+    @GetMapping("/gyms/autocorrect")
+    public ResponseEntity<GymNameAutoCorrectResponse> getAutoCorrectedGymNames(@RequestParam @NotNull(message = "keyword is requㅇred") String keyword) {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(new GymNameAutoCorrectResponse(gymQuery.autoCorrectGymNames(keyword,10)));
     }
 }
