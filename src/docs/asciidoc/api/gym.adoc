@@ -101,6 +101,16 @@ include::{snippets}/gym-demo-search/query-parameters.adoc[]
 ==== HTTP Response
 include::{snippets}/gym-demo-search/http-response.adoc[]
 include::{snippets}/gym-demo-search/response-fields.adoc[]
+---
+[[gym-autocorrect]]
+=== 암장명 자동완성
+==== HTTP Request
+include::{snippets}/gym-autocorrect/http-request.adoc[]
+==== Request Parameters
+include::{snippets}/gym-autocorrect/query-parameters.adoc[]
+==== HTTP Response
+include::{snippets}/gym-autocorrect/http-response.adoc[]
+include::{snippets}/gym-autocorrect/response-fields.adoc[]
 
 
 

@@ -1,5 +1,6 @@
 package swm.s3.coclimb.api.docs;
 
+import co.elastic.clients.elasticsearch.core.BulkRequest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
@@ -8,17 +9,23 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import swm.s3.coclimb.api.RestDocsTestSupport;
 import swm.s3.coclimb.api.adapter.in.web.gym.dto.*;
+import swm.s3.coclimb.api.adapter.out.elasticsearch.dto.GymElasticDto;
 import swm.s3.coclimb.domain.gym.Gym;
 import swm.s3.coclimb.domain.gym.Location;
 import swm.s3.coclimb.domain.gymlike.GymLike;
 import swm.s3.coclimb.domain.user.User;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.hasItems;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.restdocs.headers.HeaderDocumentation.headerWithName;
 import static org.springframework.restdocs.headers.HeaderDocumentation.requestHeaders;
@@ -572,5 +579,62 @@ class GymControllerDocsTest extends RestDocsTestSupport {
                         fieldWithPath("count").type(JsonFieldType.NUMBER)
                                 .description("조회된 암장의 수")
                 )));
+    }
+
+    @Test
+    @DisplayName("키워드를 입력하면 자동완성된 암장 리스트를 제공하는 API")
+    void autoCorrectGymNames() throws Exception {
+        // given
+        List<String> gymNames = readFileToList("src/test/resources/docker/elastic/gyms.txt");
+
+        BulkRequest.Builder br = new BulkRequest.Builder();
+        for (String gymName : gymNames) {
+            br.operations(op -> op
+                    .index(idx -> idx
+                            .index("gyms")
+                            .document(GymElasticDto.builder()
+                                    .name(gymName)
+                                    .build())
+                    )
+            );
+        }
+        esClient.bulk(br.build());
+        esClient.indices().refresh();
+        // when, then
+        ResultActions result = mockMvc.perform(get("/gyms/autocorrect")
+                        .param("keyword", "더클라임"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.gymNames").isArray())
+                .andExpect(jsonPath("$.gymNames",hasItems("더클라임 클라이밍 짐앤샵 신림점")))
+                .andExpect(jsonPath("$.count").value(10));
+
+        // docs
+        result.andDo(document("gym-autocorrect",
+                preprocessRequest(prettyPrint()),
+                preprocessResponse(prettyPrint()),
+                queryParameters(
+                        parameterWithName("keyword").description("검색 키워드")
+                ),
+                responseFields(
+                        fieldWithPath("gymNames").type(JsonFieldType.ARRAY)
+                                .description("자동완성된 암장명 리스트"),
+                        fieldWithPath("count").type(JsonFieldType.NUMBER)
+                                .description("조회된 암장의 수")
+                )));
+    }
+    private List<String> readFileToList(String filePath) {
+        List<String> lines = new ArrayList<>();
+
+        try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                lines.add(line);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return lines;
     }
 }
