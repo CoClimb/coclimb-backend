@@ -56,7 +56,8 @@ public class GymService implements GymCommand, GymQuery {
 
     @Override
     public GymInfoResponseDto getGymInfoByName(String name) {
-        Gym gym = getGymByName(name);
+        Gym gym = gymLoadPort.findByNameAtEs(name)
+                .orElseThrow(GymNotFound::new);
         return GymInfoResponseDto.of(gym);
     }
 

@@ -31,6 +31,11 @@ public class GymLoadFacade implements GymLoadPort {
     }
 
     @Override
+    public Optional<Gym> findByNameAtEs(String name) {
+        return gymElasticsearchQuery.findByName(name);
+    }
+
+    @Override
     public List<Gym> findAll() {
         return gymRepository.findAll();
     }

@@ -34,4 +34,17 @@ public class ElasticsearchClientManager {
                 );
     }
 
+    protected Function<SearchRequest.Builder, ObjectBuilder<SearchRequest>> createExactSearchQuery(String index, String field, String keyword, int size) {
+        return s -> s.index(index)
+                .size(size)
+                .query(q -> q
+                        .bool(b -> b
+                                .must(m -> m
+                                        .matchPhrase(mq->mq.field(field).query(keyword))
+//                                        .term(t -> t.field(field).value(keyword))
+                                )
+                        )
+                );
+    }
+
 }

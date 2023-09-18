@@ -4,7 +4,6 @@ import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch.core.*;
 import co.elastic.clients.elasticsearch.core.search.Hit;
 import co.elastic.clients.elasticsearch.indices.CreateIndexResponse;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import swm.s3.coclimb.api.IntegrationTestSupport;
@@ -23,12 +22,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class ElasticsearchLearningTest extends IntegrationTestSupport {
 
-    @AfterEach
-    void tearDown() throws Exception {
-        ElasticsearchClient esClient = elasticsearchClientManager.getEsClient();
-        esClient.indices().delete(d -> d.index("gyms"));
-    }
-
     @Test
     @DisplayName("새로운 인덱스를 생성")
     void esCreateIndex() throws Exception {
@@ -37,11 +30,11 @@ public class ElasticsearchLearningTest extends IntegrationTestSupport {
         System.out.println(esClient.info());
         // when
         CreateIndexResponse response = esClient.indices().create(c -> c
-                .index("gyms")
+                .index("new-index")
         );
 
         // then
-        assertThat(response.index()).isEqualTo("gyms");
+        assertThat(response.index()).isEqualTo("new-index");
     }
 
     @Test
@@ -113,7 +106,7 @@ public class ElasticsearchLearningTest extends IntegrationTestSupport {
         String searchText = "클라이밍";
 
         ElasticsearchClient esClient = elasticsearchClientManager.getEsClient();
-        esClient.indices().create(c -> c.index(searchIndex));
+//        esClient.indices().create(c -> c.index(searchIndex));
 
         List<Gym> gyms = IntStream.range(0, 3)
                 .mapToObj(i -> Gym.builder()
@@ -164,9 +157,9 @@ public class ElasticsearchLearningTest extends IntegrationTestSupport {
         ElasticsearchClient esClient = elasticsearchClientManager.getEsClient();
 
         Reader input = new StringReader(Files.readString(Path.of("src/test/resources/docker/elastic/gyms.json")));
-        esClient.indices().create(c -> c
-                .index("gyms")
-                .withJson(input));
+//        esClient.indices().create(c -> c
+//                .index("gyms")
+//                .withJson(input));
 
         IndexResponse response = esClient.index(i -> i
                 .index(searchIndex)

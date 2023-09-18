@@ -120,9 +120,11 @@ class GymServiceTest extends IntegrationTestSupport {
     @DisplayName("이름으로 암장 정보를 조회한다.")
     void getGymInfoByName() throws Exception {
         // given
-        gymJpaRepository.save(Gym.builder()
-                .name("테스트 암장")
-                .build());
+        esClient.index(i -> i.index("gyms")
+                .document(GymElasticDto.fromDomain(gymJpaRepository.save(Gym.builder()
+                        .name("테스트 암장")
+                        .build()))));
+        esClient.indices().refresh();
 
         // when
         GymInfoResponseDto sut = gymService.getGymInfoByName("테스트 암장");
@@ -131,14 +133,17 @@ class GymServiceTest extends IntegrationTestSupport {
         assertThat(sut.getName()).isEqualTo("테스트 암장");
     }
 
+
     @Test
     @DisplayName("존재하지 않는 이름으로 암장을 조회할 경우 예외가 발생한다.")
     void getGymInfoByNameWithNonexistent() throws Exception {
         // given
-        gymJpaRepository.save(Gym.builder()
-                .name("테스트 암장")
-                .build());
-
+        esClient.index(i -> i.index("gyms")
+                .document(GymElasticDto.fromDomain(Gym.builder()
+                        .id(1L)
+                        .name("테스트 암장")
+                        .build())));
+        esClient.indices().refresh();
         // when, then
         assertThatThrownBy(() -> gymService.getGymInfoByName("존재하지 않는 암장"))
                 .isInstanceOf(GymNotFound.class)
@@ -146,7 +151,40 @@ class GymServiceTest extends IntegrationTestSupport {
                 .extracting("fields")
                 .hasFieldOrPropertyWithValue("name", FieldErrorType.NOT_MATCH);
     }
-    
+
+//    @Test
+//    @DisplayName("이름으로 암장 정보를 조회한다.")
+//    void getGymInfoByName() throws Exception {
+//        // given
+//        gymJpaRepository.save(Gym.builder()
+//                .name("테스트 암장")
+//                .build());
+//
+//        // when
+//        GymInfoResponseDto sut = gymService.getGymInfoByName("테스트 암장");
+//
+//        // then
+//        assertThat(sut.getName()).isEqualTo("테스트 암장");
+//    }
+//
+//
+//    @Test
+//    @DisplayName("존재하지 않는 이름으로 암장을 조회할 경우 예외가 발생한다.")
+//    void getGymInfoByNameWithNonexistent() throws Exception {
+//        // given
+//        gymJpaRepository.save(Gym.builder()
+//                .name("테스트 암장")
+//                .build());
+//
+//        // when, then
+//        assertThatThrownBy(() -> gymService.getGymInfoByName("존재하지 않는 암장"))
+//                .isInstanceOf(GymNotFound.class)
+//                .hasMessage("해당 암장을 찾을 수 없습니다.")
+//                .extracting("fields")
+//                .hasFieldOrPropertyWithValue("name", FieldErrorType.NOT_MATCH);
+//    }
+
+
     @Test
     @DisplayName("암장들의 위치 정보를 조회한다.")
     void getGymLocations() throws Exception {
