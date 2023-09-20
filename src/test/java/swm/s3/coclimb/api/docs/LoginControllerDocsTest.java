@@ -1,5 +1,6 @@
 package swm.s3.coclimb.api.docs;
 
+import org.hamcrest.Matchers;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -29,22 +30,26 @@ class LoginControllerDocsTest extends RestDocsTestSupport {
     InstagramRestApiManager instagramRestApiManager;
 
     @Test
-    @DisplayName("/login/instagram 으로 접속하면 인스타그램 로그인 페이지로 리다이렉트 하는 API")
+    @DisplayName("인스타그램 로그인 페이지 주소를 반환하는 API")
     void redirectInstagramLoginPage() throws Exception {
 
         //given, when, then
         ResultActions results = mockMvc.perform(get("/login/instagram"))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(
-                        result -> result.getResponse().getRedirectedUrl().contains("https://api.instagram.com/oauth/authorize?client_id="))
-                .andExpect(
-                        result -> result.getResponse().getRedirectedUrl().contains("&redirect_uri="))
-                .andExpect(
-                        result -> result.getResponse().getRedirectedUrl().contains("&scope=user_profile,user_media&response_type=code"));
+                    .andExpect(status().is2xxSuccessful())
+                    .andExpect(jsonPath("$.loginPageUrl").isString())
+                    .andExpect(jsonPath("$.loginPageUrl")
+                            .value(Matchers.containsString("https://api.instagram.com/oauth/authorize")));
+
         // docs
-        results.andDo(document("login-redirect",
+        results.andDo(document("login-instagram-page",
                 preprocessRequest(prettyPrint()),
-                preprocessResponse(prettyPrint())));
+                preprocessResponse(prettyPrint()),
+                responseFields(
+                        fieldWithPath("loginPageUrl")
+                                .type(JsonFieldType.STRING)
+                                .description("인스타그램 로그인 페이지 주소")
+                )
+                ));
     }
 
     @Test

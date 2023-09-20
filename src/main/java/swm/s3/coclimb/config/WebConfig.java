@@ -18,8 +18,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class WebConfig implements WebMvcConfigurer {
 
-    @Value("${front_end.site_url}")
-    private String frontEndSiteUrl;
+    @Value("${front_end.host}")
+    private String frontEndHost;
     private final JwtManager jwtManager;
     private final UserLoadPort userLoadPort;
 
@@ -32,7 +32,7 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
-                .allowedOrigins(frontEndSiteUrl)
+                .allowedOrigins(frontEndHost)
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                 .allowCredentials(true)
                 .maxAge(1800);

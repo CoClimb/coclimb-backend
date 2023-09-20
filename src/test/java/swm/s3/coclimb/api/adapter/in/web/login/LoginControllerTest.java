@@ -1,5 +1,6 @@
 package swm.s3.coclimb.api.adapter.in.web.login;
 
+import org.hamcrest.Matchers;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
@@ -19,16 +20,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class LoginControllerTest extends ControllerTestSupport {
 
     @Test
-    @DisplayName("인스타그램 로그인 페이지로 리다이렉트 된다.")
+    @DisplayName("인스타그램 로그인 페이지를 반환한다.")
     void redirectInstagramLoginPage() throws Exception {
         mockMvc.perform(get("/login/instagram"))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(
-                        result -> result.getResponse().getRedirectedUrl().contains("https://api.instagram.com/oauth/authorize?client_id="))
-                .andExpect(
-                        result -> result.getResponse().getRedirectedUrl().contains("&redirect_uri="))
-                .andExpect(
-                        result -> result.getResponse().getRedirectedUrl().contains("&scope=user_profile,user_media&response_type=code"));
+                .andExpect(status().is2xxSuccessful())
+                .andExpect(jsonPath("$.loginPageUrl").isString())
+                .andExpect(jsonPath("$.loginPageUrl")
+                        .value(Matchers.containsString("https://api.instagram.com/oauth/authorize")));
     }
 
     @Test
