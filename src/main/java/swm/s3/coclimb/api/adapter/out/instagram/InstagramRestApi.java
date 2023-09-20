@@ -30,10 +30,10 @@ public class InstagramRestApi {
 
     public ShortLivedTokenResponse getShortLivedTokenAndUserId(String code) {
         MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
-        formData.add("client_id", instagramOAuthRecord.clientId());
-        formData.add("client_secret", instagramOAuthRecord.clientSecret());
+        formData.add("client_id", instagramOAuthRecord.getClientId());
+        formData.add("client_secret", instagramOAuthRecord.getClientSecret());
         formData.add("grant_type", "authorization_code");
-        formData.add("redirect_uri", instagramOAuthRecord.redirectUri());
+        formData.add("redirect_uri", instagramOAuthRecord.getRedirectUri());
         formData.add("code", code);
 
         String response = basicDisplayClient.post()
@@ -54,7 +54,7 @@ public class InstagramRestApi {
 
     protected LongLivedTokenResponse getLongLivedToken(String shortLivedToken) {
         String targetUri = String.format("/access_token?grant_type=ig_exchange_token&client_secret=%s&access_token=%s",
-                instagramOAuthRecord.clientSecret(), shortLivedToken);
+                instagramOAuthRecord.getClientSecret(), shortLivedToken);
 
 
         String response = graphClient.get()

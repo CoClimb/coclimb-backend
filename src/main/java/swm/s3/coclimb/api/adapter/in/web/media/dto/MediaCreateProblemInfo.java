@@ -1,6 +1,6 @@
 package swm.s3.coclimb.api.adapter.in.web.media.dto;
 
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -10,13 +10,12 @@ import java.time.LocalDate;
 @Getter
 @NoArgsConstructor
 public class MediaCreateProblemInfo {
-    @NotNull
+    @NotBlank
     private LocalDate clearDate;
-    @NotNull
+    @NotBlank
     private String gymName;
-    @NotNull
     private String color;
-    @NotNull
+    @NotBlank
     private Boolean isClear;
     private String perceivedDifficulty;
     private String type;

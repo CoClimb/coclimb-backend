@@ -1,6 +1,7 @@
 package swm.s3.coclimb.api.adapter.in.web.media.dto;
 
 
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Getter;
@@ -14,11 +15,11 @@ import swm.s3.coclimb.domain.user.User;
 @NoArgsConstructor
 public class MediaCreateRequest {
 
-    @NotNull
+    @NotBlank
     String platform;
-    @NotNull
+    @NotBlank
     String mediaUrl;
-    @NotNull
+    @NotBlank
     String mediaType;
     String thumbnailUrl;
     String description;
