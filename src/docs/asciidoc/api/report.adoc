@@ -1,0 +1,10 @@
+[[report-create]]
+=== 유저 제보 생성
+==== HTTP Request
+include::{snippets}/report-create/http-request.adoc[]
+==== Request Headers
+include::{snippets}/report-create/request-headers.adoc[]
+include::{snippets}/report-create/request-fields.adoc[]
+==== HTTP Response
+include::{snippets}/report-create/http-response.adoc[]
+---

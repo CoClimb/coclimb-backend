@@ -35,3 +35,7 @@ include::api/login.adoc[]
 [[Media-API]]
 == Media API
 include::api/media.adoc[]
+
+[[Report-API]]
+== Report API
+include::api/report.adoc[]

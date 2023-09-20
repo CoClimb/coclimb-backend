@@ -1,11 +1,13 @@
-[[login-redirect]]
+[[login-instagram-page]]
 === 인스타그램 로그인 페이지 요청
 ==== HTTP Request
-include::{snippets}/login-redirect/http-request.adoc[]
+include::{snippets}/login-instagram-page/http-request.adoc[]
 ==== HTTP Response
-include::{snippets}/login-redirect/http-response.adoc[]
+include::{snippets}/login-instagram-page/http-response.adoc[]
+include::{snippets}/login-instagram-page/response-fields.adoc[]
 ---
 
+[[login-instagram]]
 === 인스타그램으로 로그인 요청
 ==== HTTP Request
 include::{snippets}/login-instagram/http-request.adoc[]

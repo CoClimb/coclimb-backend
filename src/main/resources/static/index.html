@@ -474,8 +474,8 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </li>
 <li><a href="#Login-API">4. Login API</a>
 <ul class="sectlevel2">
-<li><a href="#login-redirect">4.1. 인스타그램 로그인 페이지 요청</a></li>
-<li><a href="#_인스타그램으로_로그인_요청">4.2. 인스타그램으로 로그인 요청</a></li>
+<li><a href="#login-instagram-page">4.1. 인스타그램 로그인 페이지 요청</a></li>
+<li><a href="#login-instagram">4.2. 인스타그램으로 로그인 요청</a></li>
 </ul>
 </li>
 <li><a href="#Media-API">5. Media API</a>
@@ -486,6 +486,11 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#_미디어_정보_조회">5.4. 미디어 정보 조회</a></li>
 <li><a href="#_미디어_정보_수정">5.5. 미디어 정보 수정</a></li>
 <li><a href="#_미디어_삭제">5.6. 미디어 삭제</a></li>
+</ul>
+</li>
+<li><a href="#Report-API">6. Report API</a>
+<ul class="sectlevel2">
+<li><a href="#report-create">6.1. 유저 제보 생성</a></li>
 </ul>
 </li>
 </ul>
@@ -571,7 +576,7 @@ Content-Length: 119
 <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /gyms HTTP/1.1
 Content-Type: application/json;charset=UTF-8
-Authorization: eyJhbGciOiJIUzUxMiJ9.eyJpc3MiOiJDb0NsaW1iIiwic3ViIjoiZG9jcyIsImF1ZCI6ImFsbCIsImlhdCI6MTY5NDM1ODc5NSwiZXhwIjoxNjk0MzYyMzk1fQ.d7JB-KFAfmsaoNbWDV8laEGfRZBCUfo9Jue_ASg88cZ5CHoDBXA_X0aPcJo9iiJlW3me53nyOtL0PU7BODZJvg
+Authorization: eyJhbGciOiJIUzUxMiJ9.eyJpc3MiOiJDb0NsaW1iIiwic3ViIjoiZG9jcyIsImF1ZCI6ImFsbCIsImlhdCI6MTY5NTIyMjQzOSwiZXhwIjoxNjk1MjI2MDM5fQ.J1QEBjjeHkxEPdHtmKwmy6MHjoFU0Cv6lxgiPlQH4_adHW0SDYn1ysOqhUeJWwlVmEc8uGa5vY1Hc2_2IAy2bA
 Content-Length: 295
 Host: localhost:8080
 
@@ -693,7 +698,7 @@ Vary: Access-Control-Request-Headers</code></pre>
 <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">DELETE /gyms HTTP/1.1
 Content-Type: application/json;charset=UTF-8
-Authorization: eyJhbGciOiJIUzUxMiJ9.eyJpc3MiOiJDb0NsaW1iIiwic3ViIjoiZG9jcyIsImF1ZCI6ImFsbCIsImlhdCI6MTY5NDM1ODc5NSwiZXhwIjoxNjk0MzYyMzk1fQ.d7JB-KFAfmsaoNbWDV8laEGfRZBCUfo9Jue_ASg88cZ5CHoDBXA_X0aPcJo9iiJlW3me53nyOtL0PU7BODZJvg
+Authorization: eyJhbGciOiJIUzUxMiJ9.eyJpc3MiOiJDb0NsaW1iIiwic3ViIjoiZG9jcyIsImF1ZCI6ImFsbCIsImlhdCI6MTY5NTIyMjQzOSwiZXhwIjoxNjk1MjI2MDM5fQ.J1QEBjjeHkxEPdHtmKwmy6MHjoFU0Cv6lxgiPlQH4_adHW0SDYn1ysOqhUeJWwlVmEc8uGa5vY1Hc2_2IAy2bA
 Content-Length: 30
 Host: localhost:8080
 
@@ -751,7 +756,7 @@ Vary: Access-Control-Request-Headers</code></pre>
 <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">PATCH /gyms HTTP/1.1
 Content-Type: application/json;charset=UTF-8
-Authorization: eyJhbGciOiJIUzUxMiJ9.eyJpc3MiOiJDb0NsaW1iIiwic3ViIjoiZG9jcyIsImF1ZCI6ImFsbCIsImlhdCI6MTY5NDM1ODc5NCwiZXhwIjoxNjk0MzYyMzk0fQ.NqH9hXmTuFhyjCsmhkAzRHwExVokLvwCtAGszN30d8yWgugXOTHaxNp32bltZXXkPmK6RxOLmW_6uIP2SfhKoQ
+Authorization: eyJhbGciOiJIUzUxMiJ9.eyJpc3MiOiJDb0NsaW1iIiwic3ViIjoiZG9jcyIsImF1ZCI6ImFsbCIsImlhdCI6MTY5NTIyMjQzOCwiZXhwIjoxNjk1MjI2MDM4fQ.oSsx_bbWM72Pu0Kkq1QW5Ao2FdrldVNuhq_D4bCfY2fFkjY2icq7gt7fzI6bxbZVmNQlLofQhgnqmhHmcEnT5w
 Content-Length: 203
 Host: localhost:8080
 
@@ -1361,7 +1366,7 @@ Content-Length: 977
 <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /gyms/likes HTTP/1.1
 Content-Type: application/json;charset=UTF-8
-Authorization: eyJhbGciOiJIUzUxMiJ9.eyJpc3MiOiJDb0NsaW1iIiwic3ViIjoiMiIsImF1ZCI6ImFsbCIsImlhdCI6MTY5NDM1ODc5NCwiZXhwIjoxNjk0MzYyMzk0fQ.rK6CbiJYM2uCKxxTN53Q8KFBnonnyVy-sM682rEey6zxGouf6Qf-_-iU7K7maypOihFD104v0BjTreJ3ua-nHQ
+Authorization: eyJhbGciOiJIUzUxMiJ9.eyJpc3MiOiJDb0NsaW1iIiwic3ViIjoiMiIsImF1ZCI6ImFsbCIsImlhdCI6MTY5NTIyMjQzOSwiZXhwIjoxNjk1MjI2MDM5fQ.TKPz5M6VaYnUn-tdR-Z075q9B2h-mkq3J95ycFpUByxGzTPyq_9IwqjH2EAtGPF6wwRKLBgDt5vP3k-H0i7IcA
 Content-Length: 20
 Host: localhost:8080
 
@@ -1440,7 +1445,7 @@ Vary: Access-Control-Request-Headers</code></pre>
 <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">DELETE /gyms/likes HTTP/1.1
 Content-Type: application/json;charset=UTF-8
-Authorization: eyJhbGciOiJIUzUxMiJ9.eyJpc3MiOiJDb0NsaW1iIiwic3ViIjoiMyIsImF1ZCI6ImFsbCIsImlhdCI6MTY5NDM1ODc5NSwiZXhwIjoxNjk0MzYyMzk1fQ.VTh-b41BLz9x4q6alZw9xE9aJmqUdUywR5yoSBdGb0HfIHrwdl09BiV42YgVLnblI4c7mkrp3tdlIxCrlZtAbw
+Authorization: eyJhbGciOiJIUzUxMiJ9.eyJpc3MiOiJDb0NsaW1iIiwic3ViIjoiMyIsImF1ZCI6ImFsbCIsImlhdCI6MTY5NTIyMjQzOSwiZXhwIjoxNjk1MjI2MDM5fQ.yt6gI4DF7SbdmWZbS_KipFZeg6DYOr35hUw4Z2gJ9poHepZ6q4kdO07liZz6GITCIzW9IRG-47ZpgBnuZC678w
 Content-Length: 20
 Host: localhost:8080
 
@@ -1518,7 +1523,7 @@ Vary: Access-Control-Request-Headers</code></pre>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">GET /gyms/likes HTTP/1.1
-Authorization: eyJhbGciOiJIUzUxMiJ9.eyJpc3MiOiJDb0NsaW1iIiwic3ViIjoiMSIsImF1ZCI6ImFsbCIsImlhdCI6MTY5NDM1ODc5NCwiZXhwIjoxNjk0MzYyMzk0fQ.lCkY-Fk5s-EO46HVaksIjIc_rXHlQg33dnyGKwRprtg5tNrl6cjRa9IAz_sgyXRlYGpgEYZNS7W7G9m4tgQa4A
+Authorization: eyJhbGciOiJIUzUxMiJ9.eyJpc3MiOiJDb0NsaW1iIiwic3ViIjoiMSIsImF1ZCI6ImFsbCIsImlhdCI6MTY5NTIyMjQzOCwiZXhwIjoxNjk1MjI2MDM4fQ.NAGc3PZl58vFGBdZBpLdLMHFTX8cYe2b70KKgEgGhVKr9Ow4-hhHRvgoSiaQt2o_QoKV8Xkpju2g9ws9iLM50Q
 Host: localhost:8080</code></pre>
 </div>
 </div>
@@ -1775,7 +1780,7 @@ Content-Length: 130
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">GET /users/me HTTP/1.1
-Authorization: eyJhbGciOiJIUzUxMiJ9.eyJpc3MiOiJDb0NsaW1iIiwic3ViIjoiMTYiLCJhdWQiOiJhbGwiLCJpYXQiOjE2OTQzNTg3OTYsImV4cCI6MTY5NDM2MjM5Nn0.9p08LjhP_YoN-6TLV81M-LWMPhZWBJtOiHaXE68ywCnQCcpBwkPJFkx1sSaBq1qPvPRt0QbLUlV0YeAJVNZ8PA
+Authorization: eyJhbGciOiJIUzUxMiJ9.eyJpc3MiOiJDb0NsaW1iIiwic3ViIjoiMTciLCJhdWQiOiJhbGwiLCJpYXQiOjE2OTUyMjI0NDAsImV4cCI6MTY5NTIyNjA0MH0.bbV9HaNCDsovU8gfZQQ9MOM59m0kNC7azIcukzBp7b324jDd-gVvLVzix_ipbdB8HkMH81cYYGxf0c7DYgMN1A
 Host: localhost:8080</code></pre>
 </div>
 </div>
@@ -1839,7 +1844,7 @@ Content-Length: 72
 <h2 id="Login-API"><a class="link" href="#Login-API">4. Login API</a></h2>
 <div class="sectionbody">
 <div class="sect2">
-<h3 id="login-redirect"><a class="link" href="#login-redirect">4.1. 인스타그램 로그인 페이지 요청</a></h3>
+<h3 id="login-instagram-page"><a class="link" href="#login-instagram-page">4.1. 인스타그램 로그인 페이지 요청</a></h3>
 <div class="sect3">
 <h4 id="_http_request_13"><a class="link" href="#_http_request_13">4.1.1. HTTP Request</a></h4>
 <div class="listingblock">
@@ -1853,18 +1858,50 @@ Host: localhost:8080</code></pre>
 <h4 id="_http_response_14"><a class="link" href="#_http_response_14">4.1.2. HTTP Response</a></h4>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 302 Found
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 200 OK
 Vary: Origin
 Vary: Access-Control-Request-Method
 Vary: Access-Control-Request-Headers
-Location: https://api.instagram.com/oauth/authorize?client_id=628513112569873&amp;redirect_uri=https://localhost:3000/auth&amp;scope=user_profile,user_media&amp;response_type=code</code></pre>
+Content-Type: application/json
+Content-Length: 182
+
+{
+  "loginPageUrl" : "https://api.instagram.com/oauth/authorize?client_id=628513112569873&amp;redirect_uri=https://localhost:3000/auth&amp;scope=user_profile,user_media&amp;response_type=code"
+}</code></pre>
 </div>
 </div>
+</div>
+<div class="sect3">
+<h4 id="_response_fields_9"><a class="link" href="#_response_fields_9">4.1.3. Response Fields</a></h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Path</th>
+<th class="tableblock halign-left valign-top">Type</th>
+<th class="tableblock halign-left valign-top">Optional</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>loginPageUrl</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">인스타그램 로그인 페이지 주소</p></td>
+</tr>
+</tbody>
+</table>
 <hr>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_인스타그램으로_로그인_요청"><a class="link" href="#_인스타그램으로_로그인_요청">4.2. 인스타그램으로 로그인 요청</a></h3>
+<h3 id="login-instagram"><a class="link" href="#login-instagram">4.2. 인스타그램으로 로그인 요청</a></h3>
 <div class="sect3">
 <h4 id="_http_request_14"><a class="link" href="#_http_request_14">4.2.1. HTTP Request</a></h4>
 <div class="listingblock">
@@ -1919,13 +1956,13 @@ Content-Type: application/json
 Content-Length: 230
 
 {
-  "accessToken" : "eyJhbGciOiJIUzUxMiJ9.eyJpc3MiOiJDb0NsaW1iIiwic3ViIjoiMSIsImF1ZCI6ImFsbCIsImlhdCI6MTY5NDM1ODc5NSwiZXhwIjoxNjk0MzYyMzk1fQ.xeQIBm-s3j0K_BqFNc85GeK15VeR8AVlmyhBPaxH7h-hqI-mFjWYPcOLDrGGBfR9HZGexe_fOsdl_ZMcXkFxFA"
+  "accessToken" : "eyJhbGciOiJIUzUxMiJ9.eyJpc3MiOiJDb0NsaW1iIiwic3ViIjoiMSIsImF1ZCI6ImFsbCIsImlhdCI6MTY5NTIyMjQzOSwiZXhwIjoxNjk1MjI2MDM5fQ.WaCmjlaEC1o3r3o1-vHs3VBULUxOl7rBxipsPV9bgk2UStEIZYLRKatr85Mg3TzZFoaq4CWyOIuK2yWXWM0HCg"
 }</code></pre>
 </div>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_response_fields_9"><a class="link" href="#_response_fields_9">4.2.4. Response Fields</a></h4>
+<h4 id="_response_fields_10"><a class="link" href="#_response_fields_10">4.2.4. Response Fields</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 25%;">
@@ -1965,7 +2002,7 @@ Content-Length: 230
 <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /medias HTTP/1.1
 Content-Type: application/json;charset=UTF-8
-Authorization: eyJhbGciOiJIUzUxMiJ9.eyJpc3MiOiJDb0NsaW1iIiwic3ViIjoiMyIsImF1ZCI6ImFsbCIsImlhdCI6MTY5NDM1ODc5NiwiZXhwIjoxNjk0MzYyMzk2fQ.FatIOV4MY5GBES00YpcsbtOmi4SKTgOzGWNXLcSkfa5AgTpKGehtfq9F3dEePrWRtfSmDs3G37hUxbgMn2LHgg
+Authorization: eyJhbGciOiJIUzUxMiJ9.eyJpc3MiOiJDb0NsaW1iIiwic3ViIjoiMyIsImF1ZCI6ImFsbCIsImlhdCI6MTY5NTIyMjQ0MCwiZXhwIjoxNjk1MjI2MDQwfQ.QH5sA4g26ZozvV90rG4GdG3IezAGT1lohyZF8-OiYoxU0flNAQV9Ow1lCPyu21JhOEbjEPxTM-f72KEw2mhAIQ
 Content-Length: 451
 Host: localhost:8080
 
@@ -1980,7 +2017,7 @@ Host: localhost:8080
     "permalink" : "instagramPermalink"
   },
   "problem" : {
-    "clearDate" : "2023-09-11",
+    "clearDate" : "2023-09-21",
     "gymName" : "gymName",
     "color" : "color",
     "isClear" : true,
@@ -2186,7 +2223,7 @@ Content-Length: 766
 </div>
 </div>
 <div class="sect3">
-<h4 id="_response_fields_10"><a class="link" href="#_response_fields_10">5.2.3. Response Fields</a></h4>
+<h4 id="_response_fields_11"><a class="link" href="#_response_fields_11">5.2.3. Response Fields</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 25%;">
@@ -2269,7 +2306,7 @@ Content-Length: 766
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">GET /medias/me?page=0&amp;size=5 HTTP/1.1
-Authorization: eyJhbGciOiJIUzUxMiJ9.eyJpc3MiOiJDb0NsaW1iIiwic3ViIjoiNCIsImF1ZCI6ImFsbCIsImlhdCI6MTY5NDM1ODc5NiwiZXhwIjoxNjk0MzYyMzk2fQ.0iT-Pfh75R84PjJ-mbAX7dnTJvgMXBx2hw9t79jn7Yes3o0ZrpYuLyPI3IYV6gbs-6IRj1OSqsC3vQHBe_iKUw
+Authorization: eyJhbGciOiJIUzUxMiJ9.eyJpc3MiOiJDb0NsaW1iIiwic3ViIjoiNCIsImF1ZCI6ImFsbCIsImlhdCI6MTY5NTIyMjQ0MCwiZXhwIjoxNjk1MjI2MDQwfQ.UTBeVoos1ti5jrxwqYpVcj3ZpVyAKaPQRH9JNgGtsFjSvf69m3gl1Qc4RVgEVjkKclrSXMX8grD8uRukMDRiOQ
 Host: localhost:8080</code></pre>
 </div>
 </div>
@@ -2346,7 +2383,7 @@ Content-Length: 746
 </div>
 </div>
 <div class="sect3">
-<h4 id="_response_fields_11"><a class="link" href="#_response_fields_11">5.3.4. Response Fields</a></h4>
+<h4 id="_response_fields_12"><a class="link" href="#_response_fields_12">5.3.4. Response Fields</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 25%;">
@@ -2471,7 +2508,7 @@ Content-Length: 361
   "thumbnailUrl" : "thumbnailUrl",
   "description" : "description",
   "problem" : {
-    "clearDate" : "2023-09-11",
+    "clearDate" : "2023-09-21",
     "gymName" : "gymName",
     "color" : "color",
     "isClear" : true,
@@ -2483,7 +2520,7 @@ Content-Length: 361
 </div>
 </div>
 <div class="sect3">
-<h4 id="_response_fields_12"><a class="link" href="#_response_fields_12">5.4.3. Response Fields</a></h4>
+<h4 id="_response_fields_13"><a class="link" href="#_response_fields_13">5.4.3. Response Fields</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 25%;">
@@ -2585,7 +2622,7 @@ Content-Length: 361
 <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">PATCH /medias/2 HTTP/1.1
 Content-Type: application/json;charset=UTF-8
-Authorization: eyJhbGciOiJIUzUxMiJ9.eyJpc3MiOiJDb0NsaW1iIiwic3ViIjoiMiIsImF1ZCI6ImFsbCIsImlhdCI6MTY5NDM1ODc5NiwiZXhwIjoxNjk0MzYyMzk2fQ.Gw45TIUdWQ-Y9kxHLQVJvfuvMQkR0UaPj3NZpUytO7wAwM--0-PyS0Ri1JsQ0w3MuJmua_o8I0F89vpzLSwP1g
+Authorization: eyJhbGciOiJIUzUxMiJ9.eyJpc3MiOiJDb0NsaW1iIiwic3ViIjoiMiIsImF1ZCI6ImFsbCIsImlhdCI6MTY5NTIyMjQ0MCwiZXhwIjoxNjk1MjI2MDQwfQ.Oqce7fhsbfQMAv8Ydz6153ZXX5V8yb_a7CjLipHYdM82XO9jeI-XWDdjBMfNEq2X7e2w71oSlKFRPl8sbYCeVw
 Content-Length: 28
 Host: localhost:8080
 
@@ -2682,7 +2719,7 @@ Vary: Access-Control-Request-Headers</code></pre>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">DELETE /medias/1 HTTP/1.1
-Authorization: eyJhbGciOiJIUzUxMiJ9.eyJpc3MiOiJDb0NsaW1iIiwic3ViIjoiMSIsImF1ZCI6ImFsbCIsImlhdCI6MTY5NDM1ODc5NiwiZXhwIjoxNjk0MzYyMzk2fQ.Xh8OfYZBZQnaNMJXG8yqKWXKuj4mL0ALfbD9GrGvq4IrL_8fDVxEtsPpNmOCHOO59-47WV8h9rdWys4BAGftuQ
+Authorization: eyJhbGciOiJIUzUxMiJ9.eyJpc3MiOiJDb0NsaW1iIiwic3ViIjoiMSIsImF1ZCI6ImFsbCIsImlhdCI6MTY5NTIyMjQ0MCwiZXhwIjoxNjk1MjI2MDQwfQ.b_08ZytmGl9ynDK65HjvPYT3VyuVCW67Cre9JyAut1j9Ki7ikbfdc4se1fcWSGhPS8puXMxVDN2oze2PcUALpg
 Host: localhost:8080</code></pre>
 </div>
 </div>
@@ -2741,11 +2778,102 @@ Vary: Access-Control-Request-Headers</code></pre>
 </div>
 </div>
 </div>
+<div class="sect1">
+<h2 id="Report-API"><a class="link" href="#Report-API">6. Report API</a></h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="report-create"><a class="link" href="#report-create">6.1. 유저 제보 생성</a></h3>
+<div class="sect3">
+<h4 id="_http_request_21"><a class="link" href="#_http_request_21">6.1.1. HTTP Request</a></h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /reports HTTP/1.1
+Content-Type: application/json;charset=UTF-8
+Authorization: eyJhbGciOiJIUzUxMiJ9.eyJpc3MiOiJDb0NsaW1iIiwic3ViIjoiMTYiLCJhdWQiOiJhbGwiLCJpYXQiOjE2OTUyMjI0NDAsImV4cCI6MTY5NTIyNjA0MH0.QEyxxIEOGUSfI0w_PuZVpWN3g5-QJRiaShV-5WdPyM_qRzVXTWreYu0hGNVHruzkX0FNMJ4cWTYf2qnVg5yC1g
+Content-Length: 60
+Host: localhost:8080
+
+{
+  "subject" : "subject",
+  "description" : "description"
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_request_headers_8"><a class="link" href="#_request_headers_8">6.1.2. Request Headers</a></h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Name</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Authorization</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">JWT 인증 토큰</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect3">
+<h4 id="_request_fields_9"><a class="link" href="#_request_fields_9">6.1.3. Request Fields</a></h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Path</th>
+<th class="tableblock halign-left valign-top">Type</th>
+<th class="tableblock halign-left valign-top">Optional</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>subject</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">제보 주제</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>description</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">제보 내용</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect3">
+<h4 id="_http_response_22"><a class="link" href="#_http_response_22">6.1.4. HTTP Response</a></h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 201 Created
+Vary: Origin
+Vary: Access-Control-Request-Method
+Vary: Access-Control-Request-Headers</code></pre>
+</div>
+</div>
+<hr>
+</div>
+</div>
+</div>
+</div>
 </div>
 <div id="footer">
 <div id="footer-text">
 Version 0.0.1-SNAPSHOT<br>
-Last updated 2023-09-07 03:51:24 +0900
+Last updated 2023-09-21 00:06:56 +0900
 </div>
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.3/highlight.min.js"></script>

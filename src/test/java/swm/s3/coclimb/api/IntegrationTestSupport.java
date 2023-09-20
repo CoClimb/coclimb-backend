@@ -14,12 +14,11 @@ import swm.s3.coclimb.api.adapter.out.persistence.gym.GymRepository;
 import swm.s3.coclimb.api.adapter.out.persistence.gymlike.GymLikeJpaRepository;
 import swm.s3.coclimb.api.adapter.out.persistence.media.MediaJpaRepository;
 import swm.s3.coclimb.api.adapter.out.persistence.media.MediaRepository;
+import swm.s3.coclimb.api.adapter.out.persistence.report.ReportJpaRepository;
+import swm.s3.coclimb.api.adapter.out.persistence.report.ReportRepository;
 import swm.s3.coclimb.api.adapter.out.persistence.user.UserJpaRepository;
 import swm.s3.coclimb.api.adapter.out.persistence.user.UserRepository;
-import swm.s3.coclimb.api.application.service.GymService;
-import swm.s3.coclimb.api.application.service.LoginService;
-import swm.s3.coclimb.api.application.service.MediaService;
-import swm.s3.coclimb.api.application.service.UserService;
+import swm.s3.coclimb.api.application.service.*;
 import swm.s3.coclimb.config.AppConfig;
 import swm.s3.coclimb.config.ServerClock;
 import swm.s3.coclimb.config.security.JwtManager;
@@ -53,6 +52,11 @@ public abstract class IntegrationTestSupport{
     // Login
     @Autowired protected LoginService loginService;
 
+    // Report
+    @Autowired protected ReportService reportService;
+    @Autowired protected ReportJpaRepository reportJpaRepository;
+    @Autowired protected ReportRepository reportRepository;
+
     // Config
     @Autowired protected AppConfig appConfig;
     @Autowired protected ServerClock serverClock;
@@ -70,6 +74,7 @@ public abstract class IntegrationTestSupport{
 
     @AfterEach
     void clearDB() {
+        reportJpaRepository.deleteAllInBatch();
         gymLikeJpaRepository.deleteAllInBatch();
         mediaJpaRepository.deleteAllInBatch();
         gymJpaRepository.deleteAllInBatch();
