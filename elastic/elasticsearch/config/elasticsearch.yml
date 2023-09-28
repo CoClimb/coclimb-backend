@@ -1,0 +1,7 @@
+cluster.name: coclimb-cluster
+node.name: node-1
+node.roles: [data, master]
+network.host: 0.0.0.0
+xpack.security.enabled: false
+discovery.seed_hosts: ["<EC2-instance-1-IP>", "<EC2-instance-2-IP>", "<EC2-instance-3-IP>"]
+cluster.initial_master_nodes: ["node-1", "node-2", "node-3"]

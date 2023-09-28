@@ -1,0 +1,13 @@
+version: "3.7"
+
+services:
+  kibana:
+    build: .
+    restart: on-failure
+    volumes:
+      - ./config/kibana.yml:/usr/share/kibana/config/kibana.yml
+    ports:
+      - 5601:5601
+#    environment:
+#      KIBANA_SYSTEM_PASSWORD : p@ssw0rd
+    network_mode: host

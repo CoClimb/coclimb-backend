@@ -1,0 +1,7 @@
+server.name: "kibana"
+server.port: 5601
+server.host: "0.0.0.0"
+
+elasticsearch.hosts: ["http://node1:9200", "http://node2:9200", "http://node3:9200"]
+elasticsearch.username: "elastic/kibana"
+elasticsearch.password: "p@ssw0rd"

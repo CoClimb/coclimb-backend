@@ -1,0 +1,15 @@
+version: "3.7"
+
+services:
+  es-node:
+    build: .
+    restart: on-failure
+    volumes:
+      - ./config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+    ports:
+      - 9200:9200
+      - 9300:9300
+    environment:
+      ES_JAVA_OPTS : -Xms1g -Xmx1g
+      ELASTIC_PASSWORD : p@ssw0rd
+    network_mode: host
