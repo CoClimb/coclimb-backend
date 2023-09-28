@@ -28,6 +28,8 @@ app-config:
     server-url: ${local.elastic.server_url}
     api-key : ${local.elastic.api_key}
     finger-print : ${local.elastic.finger_print}
+    user-name: ${local.elastic.user_name}
+    password: ${local.elastic.password}
 
 logging:
   level:

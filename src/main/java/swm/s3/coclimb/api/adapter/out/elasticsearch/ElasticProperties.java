@@ -10,10 +10,14 @@ public class ElasticProperties {
     private final String serverUrl;
     private final String apiKey;
     private final String fingerPrint;
+    private final String userName;
+    private final String password;
 
-    public ElasticProperties(String serverUrl, String apiKey, String fingerPrint) {
+    public ElasticProperties(String serverUrl, String apiKey, String fingerPrint, String userName, String password) {
         this.serverUrl = serverUrl;
         this.apiKey = apiKey;
         this.fingerPrint = fingerPrint;
+        this.userName = userName;
+        this.password = password;
     }
 }
