@@ -68,6 +68,12 @@ public class DockerComposeRunner {
                 "src/test/resources/docker");
     }
 
+    public static void composeDown() {
+        log.info("DockerComposeRunner.composeDown");
+        new CommandProcessor().process("docker-compose down",
+                "src/test/resources/docker");
+    }
+
     public ContainerState getContainerState(String containerName) {
         return dockerClient.inspectContainerCmd(containerName).exec().getState();
     }

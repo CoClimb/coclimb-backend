@@ -1,6 +1,7 @@
 package swm.s3.coclimb.api;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -34,6 +35,7 @@ import java.nio.file.Path;
 
 @SpringBootTest
 @ActiveProfiles("test")
+@Slf4j
 public abstract class IntegrationTestSupport{
     static DockerComposeRunner dockerRunner = new DockerComposeRunner();
     @BeforeAll

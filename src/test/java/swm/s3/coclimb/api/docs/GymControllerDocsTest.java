@@ -101,7 +101,7 @@ class GymControllerDocsTest extends RestDocsTestSupport {
         ));
     }
     private void createTestGym(String name) {
-        gymJpaRepository.save(Gym.builder()
+        Gym gym = Gym.builder()
                 .name(name)
                 .address("주소")
                 .phone("02-000-0000")
@@ -110,7 +110,16 @@ class GymControllerDocsTest extends RestDocsTestSupport {
                 .homepageUrl("https://homepage.com")
                 .gradingSystem("gradingSystem")
                 .location(Location.of(0f, 0f))
-                .build());
+                .build();
+        gymJpaRepository.save(gym);
+        try {
+            esClient.index(i -> i.index("gyms")
+                    .document(GymElasticDto.fromDomain(gym)));
+            esClient.indices().refresh();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
     }
     @Test
     @DisplayName("이름을 입력받아 암장 정보를 제거하는 API")
