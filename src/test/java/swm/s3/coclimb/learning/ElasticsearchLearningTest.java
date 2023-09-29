@@ -28,6 +28,9 @@ public class ElasticsearchLearningTest extends IntegrationTestSupport {
         // given
         ElasticsearchClient esClient = elasticsearchClientManager.getEsClient();
         System.out.println(esClient.info());
+        esClient.indices().delete(d -> d.index("new-index"));
+        esClient.indices().refresh();
+
         // when
         CreateIndexResponse response = esClient.indices().create(c -> c
                 .index("new-index")

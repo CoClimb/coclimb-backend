@@ -30,6 +30,8 @@ app-config:
     server-url: ${test.elastic.server_url}
     api-key: ${test.elastic.api_key}
     finger-print: ${test.elastic.finger_print}
+    user-name: ${test.elastic.user_name}
+    password: ${test.elastic.password}
 
 front_end:
   host: ${test.front_end.host}
