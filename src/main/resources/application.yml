@@ -2,6 +2,16 @@ spring:
   profiles:
     active: local
     include: secret
+oauth:
+  instagram:
+    client_id: ${secret.instagram.client_id}
+    client_secret: ${secret.instagram.client_secret}
+    redirect_uri: ${secret.instagram.redirect_uri}
+
+aws-config:
+  secret-name : ${release.aws.secret_name}
+  region : ${release.aws.region}
+  db-url: ${release.db.url}
 
 cloud:
   aws:

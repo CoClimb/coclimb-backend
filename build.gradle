@@ -76,6 +76,12 @@ dependencies {
 
 	// @ConfigurationProperties
 	annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
+
+	// AWS SDK
+	// https://mvnrepository.com/artifact/software.amazon.awssdk/secretsmanager
+	implementation group: 'software.amazon.awssdk', name: 'secretsmanager', version: '2.20.151'
+
+
 }
 
 test {
