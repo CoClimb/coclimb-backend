@@ -45,3 +45,6 @@ logging:
       max-history: 30 #로그 파일 최대 보관 일자
       file-name-pattern: ./logs/coclimb.%d{yyyy-MM-dd}.%i.log
       total-size-cap: 1000MB
+
+front_end:
+  host: ${release.front_end.host}
