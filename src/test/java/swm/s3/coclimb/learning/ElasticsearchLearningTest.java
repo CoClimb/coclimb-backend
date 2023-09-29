@@ -8,7 +8,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import swm.s3.coclimb.api.IntegrationTestSupport;
-import swm.s3.coclimb.api.adapter.out.elasticsearch.GymElasticDto;
+import swm.s3.coclimb.api.adapter.out.elasticsearch.dto.GymElasticDto;
 import swm.s3.coclimb.domain.gym.Gym;
 
 import java.io.Reader;

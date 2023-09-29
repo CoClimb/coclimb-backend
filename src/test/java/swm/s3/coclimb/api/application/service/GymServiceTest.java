@@ -1,9 +1,14 @@
 package swm.s3.coclimb.api.application.service;
 
+import co.elastic.clients.elasticsearch.core.BulkRequest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.data.domain.Page;
 import swm.s3.coclimb.api.IntegrationTestSupport;
+import swm.s3.coclimb.api.adapter.out.elasticsearch.dto.GymElasticDto;
 import swm.s3.coclimb.api.application.port.in.gym.dto.*;
 import swm.s3.coclimb.api.exception.FieldErrorType;
 import swm.s3.coclimb.api.exception.errortype.gym.GymNameConflict;
@@ -16,6 +21,7 @@ import swm.s3.coclimb.domain.user.User;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -313,5 +319,48 @@ class GymServiceTest extends IntegrationTestSupport {
         assertThat(sut3).hasSize(2)
                 .extracting("name")
                 .contains("강남 클라이밍", "서울숲 클라이밍");
+    }
+
+    private static Stream<Arguments> autoCorrectName() {
+        return Stream.of(
+                Arguments.of("더클 서울대", "더클라임 클라이밍 짐앤샵 서울대점"),
+                Arguments.of("락트리 분당", "락트리클라이밍 분당"),
+                Arguments.of("서울숲 잠실", "서울숲클라이밍 잠실점"),
+                Arguments.of("더클B", "더클라임 B 홍대점"),
+                Arguments.of("신림 더클라임", "더클라임 클라이밍 짐앤샵 신림점"));
+    }
+    @ParameterizedTest
+    @MethodSource
+    @DisplayName("키워드를 입력 시 자동완성된 암장 이름 리스트를 size만큼 조회할 수 있다.")
+    void autoCorrectName(String keyword, String expected) throws Exception{
+        // given
+        List<String> gymNames = List.of("더클라임 클라이밍 짐앤샵 서울대점",
+                "락트리클라이밍 분당",
+                "서울숲클라이밍 잠실점",
+                "더클라임 B 홍대점",
+                "더클라임 클라이밍 짐앤샵 신림점"
+        );
+
+        BulkRequest.Builder br = new BulkRequest.Builder();
+        for (String gymName : gymNames) {
+            br.operations(op -> op
+                    .index(idx -> idx
+                            .index("gyms")
+                            .document(GymElasticDto.builder()
+                                    .name(gymName)
+                                    .build())
+                    )
+            );
+        }
+        esClient.bulk(br.build());
+        esClient.indices().refresh();
+
+        // when
+        List<String> sut = gymService.autoCorrectGymNames(keyword, 1);
+
+        System.out.println(sut);
+        // then
+        assertThat(sut.size()).isEqualTo(1);
+        assertThat(sut.get(0)).isEqualTo(expected);
     }
 }

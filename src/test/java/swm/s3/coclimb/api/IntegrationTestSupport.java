@@ -1,11 +1,14 @@
 package swm.s3.coclimb.api;
 
+import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import swm.s3.coclimb.api.adapter.out.elasticsearch.ElasticsearchClientManager;
+import swm.s3.coclimb.api.adapter.out.elasticsearch.GymElasticsearchQuery;
 import swm.s3.coclimb.api.adapter.out.instagram.InstagramOAuthRecord;
 import swm.s3.coclimb.api.adapter.out.instagram.InstagramRestApi;
 import swm.s3.coclimb.api.adapter.out.instagram.InstagramRestApiManager;
@@ -23,6 +26,11 @@ import swm.s3.coclimb.config.AppConfig;
 import swm.s3.coclimb.config.ServerClock;
 import swm.s3.coclimb.config.security.JwtManager;
 import swm.s3.coclimb.docker.DockerComposeRunner;
+
+import java.io.Reader;
+import java.io.StringReader;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 @SpringBootTest
 @ActiveProfiles("test")
@@ -70,17 +78,28 @@ public abstract class IntegrationTestSupport{
     @Autowired protected InstagramRestApi instagramRestApi;
 
     // elasticsearch
-    protected ElasticsearchClientManager elasticsearchClientManager = new ElasticsearchClientManager(dockerRunner.getElasticsearchClient());
+    @Autowired protected ElasticsearchClient esClient;
+    @Autowired protected ElasticsearchClientManager elasticsearchClientManager;
+    @Autowired protected GymElasticsearchQuery gymElasticsearchQuery;
+
+    @BeforeEach
+    void setUp() throws Exception{
+        Reader input = new StringReader(Files.readString(Path.of("src/test/resources/docker/elastic/gyms.json")));
+        esClient.indices().create(c -> c
+                .index("gyms")
+                .withJson(input));
+        esClient.indices().refresh();
+    }
 
     @AfterEach
-    void clearDB() {
+    void clearDB() throws Exception {
         reportJpaRepository.deleteAllInBatch();
         gymLikeJpaRepository.deleteAllInBatch();
         mediaJpaRepository.deleteAllInBatch();
         gymJpaRepository.deleteAllInBatch();
         userJpaRepository.deleteAllInBatch();
+        esClient.indices().delete(d -> d.index("gyms"));
+        esClient.indices().refresh();
     }
-
-
 
 }

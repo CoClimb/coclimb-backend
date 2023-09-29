@@ -9,6 +9,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import swm.s3.coclimb.api.ControllerTestSupport;
 import swm.s3.coclimb.api.adapter.in.web.gym.dto.*;
@@ -24,11 +25,13 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.times;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -476,4 +479,38 @@ class GymControllerTest extends ControllerTestSupport {
                 .andDo(print())
                 .andExpect(status().isBadRequest());
     }
+
+    @Test
+    @DisplayName("키워드를 입력하면 자동완성된 암장 리스트를 제공한다.")
+    void autoCorrectGymNames() throws Exception {
+        // given
+        given(gymQuery.autoCorrectGymNames(any(), anyInt())).willReturn(IntStream.range(0, 10)
+                .mapToObj(i -> new String("암장" + i))
+                .toList());
+
+        // when, then
+        ResultActions result = mockMvc.perform(get("/gyms/autocorrect")
+                        .param("keyword", "더클라임"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.gymNames").isArray())
+                .andExpect(jsonPath("$.count").value(10))
+                .andExpect(jsonPath("$.gymNames[0]").value("암장0"))
+                .andExpect(jsonPath("$.gymNames[1]").value("암장1"));
+    }
+
+    @Test
+    @DisplayName("자동완성 시 키워드가 없으면 예외가 발생한다.")
+    void autoCorrectGymNamesWithoutKeyword() throws Exception {
+        // given
+        given(gymQuery.autoCorrectGymNames(any(), anyInt())).willReturn(IntStream.range(0, 10)
+                .mapToObj(i -> new String("암장" + i))
+                .toList());
+
+        // when, then
+        ResultActions result = mockMvc.perform(get("/gyms/autocorrect"))
+                .andDo(print())
+                .andExpect(status().isBadRequest());
+    }
+
 }
