@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import swm.s3.coclimb.domain.user.KakaoUserInfo;
 
+import java.time.LocalDateTime;
+
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
@@ -23,14 +25,14 @@ public class KakaoTokenResponse {
     @JsonProperty("scope")
     String scope;
 
-    public KakaoUserInfo toKakaoUserInfoEntity(Long id) {
+    public KakaoUserInfo toKakaoUserInfoEntity(LocalDateTime now, Long id) {
         return KakaoUserInfo.builder()
                 .id(id)
                 .tokenType(tokenType)
                 .accessToken(accessToken)
-                .expiresIn(expiresIn)
+                .expireTime(now.plusSeconds(expiresIn))
                 .refreshToken(refreshToken)
-                .refreshTokenExpiresIn(refreshTokenExpiresIn)
+                .refreshTokenExpireTime(now.plusSeconds(refreshTokenExpiresIn))
                 .scope(scope)
                 .build();
     }

@@ -7,6 +7,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Getter
 @Embeddable
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -18,22 +20,22 @@ public class KakaoUserInfo {
     @Column(name = "kakao_access_token")
     private String accessToken;
     @Column(name = "kakao_token_expire_time")
-    private Long expiresIn;
+    private LocalDateTime expireTime;
     @Column(name = "kakao_refresh_token")
     private String refreshToken;
     @Column(name = "kakao_refresh_token_expire_time")
-    private Long refreshTokenExpiresIn;
+    private LocalDateTime refreshTokenExpireTime;
     @Column(name = "kakao_scope")
     private String scope;
 
     @Builder
-    public KakaoUserInfo(Long id, String tokenType, String accessToken, Long expiresIn, String refreshToken, Long refreshTokenExpiresIn, String scope) {
+    public KakaoUserInfo(Long id, String tokenType, String accessToken, LocalDateTime expireTime, String refreshToken, LocalDateTime refreshTokenExpireTime, String scope) {
         this.id = id;
         this.tokenType = tokenType;
         this.accessToken = accessToken;
-        this.expiresIn = expiresIn;
+        this.expireTime = expireTime;
         this.refreshToken = refreshToken;
-        this.refreshTokenExpiresIn = refreshTokenExpiresIn;
+        this.refreshTokenExpireTime = refreshTokenExpireTime;
         this.scope = scope;
     }
 }

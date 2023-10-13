@@ -11,6 +11,7 @@ import swm.s3.coclimb.api.application.port.in.user.UserQuery;
 import swm.s3.coclimb.api.application.port.out.oauth.instagram.InstagramAuthPort;
 import swm.s3.coclimb.api.application.port.out.oauth.kakao.KakaoAuthPort;
 import swm.s3.coclimb.api.application.port.out.oauth.kakao.KakaoDataPort;
+import swm.s3.coclimb.config.ServerClock;
 import swm.s3.coclimb.domain.user.InstagramUserInfo;
 import swm.s3.coclimb.domain.user.KakaoUserInfo;
 import swm.s3.coclimb.domain.user.User;
@@ -24,6 +25,7 @@ public class LoginService implements LoginCommand {
     private final KakaoDataPort kakaoDataPort;
     private final UserCommand userCommand;
     private final UserQuery userQuery;
+    private final ServerClock serverClock;
 
     @Override
     @Transactional
@@ -50,7 +52,7 @@ public class LoginService implements LoginCommand {
                 .orElse(null);
 
         if(user == null) {
-            KakaoUserInfo kakaoUserInfo = kakaoTokenResponse.toKakaoUserInfoEntity(kakaoUserId);
+            KakaoUserInfo kakaoUserInfo = kakaoTokenResponse.toKakaoUserInfoEntity(serverClock.getDateTime(), kakaoUserId);
             return userCommand.createUserByKakaoInfo(kakaoUserInfo);
         } else {
             return user.getId();

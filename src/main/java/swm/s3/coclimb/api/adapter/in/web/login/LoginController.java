@@ -53,7 +53,6 @@ public class LoginController {
     @PostMapping("/login/kakao")
     public ResponseEntity<LoginSuccessResponse> loginWithKakao(@RequestBody @Valid OAuthLoginRequest request) {
         Long userId = loginCommand.loginWithKakao(request.getCode());
-        System.out.println("userId = " + userId);
         return ResponseEntity.ok(
                 LoginSuccessResponse.builder()
                         .accessToken(jwtManager.issueToken(userId.toString()))
