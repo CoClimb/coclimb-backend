@@ -6,6 +6,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.test.web.servlet.ResultActions;
+import software.amazon.awssdk.services.sts.model.Credentials;
 import swm.s3.coclimb.api.RestDocsTestSupport;
 import swm.s3.coclimb.api.adapter.in.web.media.dto.MediaCreateInstagramInfo;
 import swm.s3.coclimb.api.adapter.in.web.media.dto.MediaCreateProblemInfo;
@@ -13,10 +14,13 @@ import swm.s3.coclimb.api.adapter.in.web.media.dto.MediaCreateRequest;
 import swm.s3.coclimb.api.adapter.in.web.media.dto.MediaUpdateRequest;
 import swm.s3.coclimb.api.adapter.out.aws.AwsS3Manager;
 import swm.s3.coclimb.api.adapter.out.filedownload.FileDownloader;
+import swm.s3.coclimb.api.adapter.out.persistence.user.UserJpaRepository;
+import swm.s3.coclimb.api.application.port.out.aws.dto.S3AccessToken;
 import swm.s3.coclimb.api.application.port.out.filedownload.DownloadedFileDetail;
 import swm.s3.coclimb.domain.media.InstagramMediaInfo;
 import swm.s3.coclimb.domain.media.Media;
 import swm.s3.coclimb.domain.media.MediaProblemInfo;
+import swm.s3.coclimb.domain.user.InstagramUserInfo;
 import swm.s3.coclimb.domain.user.User;
 
 import java.time.LocalDate;
@@ -26,6 +30,7 @@ import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.startsWith;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willDoNothing;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
@@ -36,6 +41,7 @@ import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuild
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.*;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.restdocs.request.RequestDocumentation.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -404,5 +410,58 @@ public class MediaControllerDocsTest extends RestDocsTestSupport {
                         parameterWithName("id")
                                 .description("미디어 ID")
                 )));
+    }
+
+    @Test
+    @DisplayName("미디어 업로드를 위한 엑세스 토큰을 요청하는 API")
+    void getMediaAccessToken() throws Exception {
+        // given
+        User user = User.builder()
+                .name("user")
+                .build();
+        userJpaRepository.save(user);
+        String accessToken = jwtManager.issueToken(user.getId().toString());
+
+        // when, then
+        ResultActions result = mockMvc.perform(get("/medias/upload-token")
+                        .header("Authorization", accessToken)
+                        .queryParam("type", "0"))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.accessKey").isString())
+                .andExpect(jsonPath("$.secretKey").isString())
+                .andExpect(jsonPath("$.sessionToken").isString())
+                .andExpect(jsonPath("$.bucket").value("coclimb-media-bucket"))
+                .andExpect(jsonPath("$.key").isString());
+
+        //docs
+        result.andDo(document("media-upload-token",
+                preprocessRequest(prettyPrint()),
+                preprocessResponse(prettyPrint()),
+                requestHeaders(
+                        headerWithName("Authorization")
+                                .description("JWT 인증 토큰")
+                ),
+                queryParameters(
+                        parameterWithName("type")
+                                .description("업로드 파일 타입 : 0(미디어), 1(썸네일)")
+                ),
+                responseFields(
+                        fieldWithPath("accessKey")
+                                .type(JsonFieldType.STRING)
+                                .description("access key"),
+                        fieldWithPath("secretKey")
+                                .type(JsonFieldType.STRING)
+                                .description("secret key"),
+                        fieldWithPath("sessionToken")
+                                .type(JsonFieldType.STRING)
+                                .description("session token"),
+                        fieldWithPath("bucket")
+                                .type(JsonFieldType.STRING)
+                                .description("s3 버켓 이름"),
+                        fieldWithPath("key")
+                                .type(JsonFieldType.STRING)
+                                .description("파일 경로")
+                )));
+
     }
 }

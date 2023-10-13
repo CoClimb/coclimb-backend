@@ -28,6 +28,8 @@ public class MediaController {
 
     private final MediaQuery mediaQuery;
     private final MediaCommand mediaCommand;
+    private static final String WRITE_ACTION = "PutObject";
+
 
     @PostMapping("/medias")
     public ResponseEntity<Void> createMedia(@RequestBody @Valid MediaCreateRequest mediaCreateRequest, @LoginUser User user) {
@@ -109,5 +111,26 @@ public class MediaController {
         return ResponseEntity
                 .status(HttpStatus.NO_CONTENT)
                 .build();
+    }
+
+    @GetMapping("/medias/upload-token")
+    public ResponseEntity<S3AccessTokenResponse> getMediaUploadToken(@LoginUser User user, @RequestParam Integer type) {
+        String prefix;
+        switch (type){
+            case 0:
+                prefix = "media";
+                break;
+            case 1:
+                prefix = "thumbnail";
+                break;
+            default:
+                throw ValidationFail.onRequest()
+                        .addField("type", FieldErrorType.NOT_MATCH);
+        }
+
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(S3AccessTokenResponse.of(
+                        mediaCommand.createS3AccessToken("coclimb-media-bucket", prefix, user.getId(), WRITE_ACTION)));
     }
 }

@@ -1,5 +1,6 @@
 package swm.s3.coclimb.api.application.service;
 
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -14,6 +15,7 @@ import swm.s3.coclimb.api.application.port.in.media.dto.MediaCreateRequestDto;
 import swm.s3.coclimb.api.application.port.in.media.dto.MediaDeleteRequestDto;
 import swm.s3.coclimb.api.application.port.in.media.dto.MediaPageRequestDto;
 import swm.s3.coclimb.api.application.port.in.media.dto.MediaUpdateRequestDto;
+import swm.s3.coclimb.api.application.port.out.aws.dto.S3AccessToken;
 import swm.s3.coclimb.api.application.port.out.filedownload.DownloadedFileDetail;
 import swm.s3.coclimb.api.exception.errortype.media.InstagramMediaIdConflict;
 import swm.s3.coclimb.domain.media.InstagramMediaInfo;
@@ -332,4 +334,23 @@ class MediaServiceTest extends IntegrationTestSupport {
                 .extracting("user.name", "mediaProblemInfo.gymName")
                 .containsOnly(tuple(userName2, gymName2));
     }
+
+    @Test
+    @DisplayName("특정 S3 리소스에 미디어 업로드가 가능한 임시 접근 권한을 생성한다.")
+    void createTokenForUpload() throws Exception {
+        // given
+        Long userId = 1L;
+        String bucket = "coclimb-media-bucket";
+        String prefix = "test";
+        String action = "PutObject";
+
+        // when
+        S3AccessToken sut = mediaService.createS3AccessToken(bucket, prefix, userId,action);
+
+        // then
+        assertThat(sut).isNotNull();
+        Assertions.assertThatCode(() ->
+                uploadToSpecificResource(bucket, sut.getKey(), sut.getCredentials())).doesNotThrowAnyException();
+    }
+
 }

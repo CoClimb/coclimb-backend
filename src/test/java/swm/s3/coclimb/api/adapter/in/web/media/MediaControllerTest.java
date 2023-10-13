@@ -4,10 +4,12 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import software.amazon.awssdk.services.sts.model.Credentials;
 import swm.s3.coclimb.api.ControllerTestSupport;
 import swm.s3.coclimb.api.adapter.in.web.media.dto.MediaCreateProblemInfo;
 import swm.s3.coclimb.api.adapter.in.web.media.dto.MediaCreateRequest;
 import swm.s3.coclimb.api.adapter.in.web.media.dto.MediaUpdateRequest;
+import swm.s3.coclimb.api.application.port.out.aws.dto.S3AccessToken;
 import swm.s3.coclimb.domain.media.InstagramMediaInfo;
 import swm.s3.coclimb.domain.media.Media;
 import swm.s3.coclimb.domain.media.MediaProblemInfo;
@@ -21,6 +23,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.*;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -144,5 +147,67 @@ class MediaControllerTest extends ControllerTestSupport {
                                         .build())))
                 .andExpect(status().isNoContent());
         then(mediaCommand).should(times(1)).updateMedia(any());
+    }
+
+    @Test
+    @DisplayName("미디어 접근을 위한 엑세스 토큰을 획득한다.")
+    void getMediaAccessToken() throws Exception {
+        // given
+        String accessToken = "token";
+        given(jwtManager.getSubject(accessToken)).willReturn("1");
+        given(userLoadPort.getById(1L)).willReturn(User.builder()
+                .name("username")
+                .instagramUserInfo(InstagramUserInfo.builder().build())
+                .build());
+        S3AccessToken s3AccessToken = S3AccessToken.of("bucket",
+                "key",
+                Credentials.builder()
+                        .accessKeyId("ac")
+                        .secretAccessKey("sc")
+                        .sessionToken("st")
+                        .build());
+
+        given(mediaCommand.createS3AccessToken(any(), any(), any(),any())).willReturn(s3AccessToken);
+
+        // when, then
+        mockMvc.perform(get("/medias/upload-token")
+                        .header("Authorization", accessToken)
+                        .queryParam("type", "0"))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.accessKey").value("ac"))
+                .andExpect(jsonPath("$.secretKey").value("sc"))
+                .andExpect(jsonPath("$.sessionToken").value("st"))
+                .andExpect(jsonPath("$.bucket").value("bucket"))
+                .andExpect(jsonPath("$.key").value("key"));
+    }
+
+    @Test
+    @DisplayName("미디어 접근을 위한 엑세스 토큰 요청 시, 잘못된 type을 입력한 경우 예외가 발생한다.")
+    void getMediaAccessTokenWithWrongType() throws Exception {
+        // given
+        String accessToken = "token";
+        given(jwtManager.getSubject(accessToken)).willReturn("1");
+        given(userLoadPort.getById(1L)).willReturn(User.builder()
+                .name("username")
+                .instagramUserInfo(InstagramUserInfo.builder().build())
+                .build());
+        S3AccessToken s3AccessToken = S3AccessToken.of("bucket",
+                "key",
+                Credentials.builder()
+                        .accessKeyId("ac")
+                        .secretAccessKey("sc")
+                        .sessionToken("st")
+                        .build());
+
+        given(mediaCommand.createS3AccessToken(any(), any(), any(),any())).willReturn(s3AccessToken);
+
+        // when, then
+        mockMvc.perform(get("/medias/access-token")
+                        .header("Authorization", accessToken)
+                        .queryParam("type", "-1"))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").isString())
+                .andExpect(jsonPath("$.fields").isMap());
     }
 }

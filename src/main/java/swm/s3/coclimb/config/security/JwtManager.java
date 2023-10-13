@@ -16,12 +16,12 @@ public class JwtManager {
 //    private final AppConfig appConfig;
     private final ServerClock serverClock;
     private final JwtParser jwtParser;
-    private final JwtProperties jwt;
+    private final JwtProperties jwtProperties;
 
     public JwtManager(AppConfig appConfig, ServerClock serverClock) {
-        jwt = appConfig.getJwtProperties();
+        jwtProperties = appConfig.getJwtProperties();
         this.serverClock = serverClock;
-        this.jwtParser = Jwts.parserBuilder().setSigningKey(jwt.getSecretKey()).build();
+        this.jwtParser = Jwts.parserBuilder().setSigningKey(jwtProperties.getSecretKey()).build();
     }
 
     public String issueToken(String subject) {
@@ -31,8 +31,8 @@ public class JwtManager {
                 .setSubject(subject)
                 .setAudience("all")
                 .setIssuedAt(iat)
-                .setExpiration(new Date(iat.getTime() + jwt.getValidTime()))//만료시간 - ms단위;1000=1초
-                .signWith(jwt.getSecretKey())
+                .setExpiration(new Date(iat.getTime() + jwtProperties.getValidTime()))//만료시간 - ms단위;1000=1초
+                .signWith(jwtProperties.getSecretKey())
                 .compact();
     }
 

@@ -5,12 +5,10 @@ import com.amazonaws.auth.BasicSessionCredentials;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.S3Object;
-import com.amazonaws.services.s3.model.S3ObjectInputStream;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import software.amazon.awssdk.core.sync.ResponseTransformer;
 import software.amazon.awssdk.services.sts.StsClient;
 import software.amazon.awssdk.services.sts.model.AssumeRoleRequest;
 import software.amazon.awssdk.services.sts.model.Credentials;
@@ -18,10 +16,11 @@ import swm.s3.coclimb.api.IntegrationTestSupport;
 import swm.s3.coclimb.api.exception.errortype.aws.S3UploadFail;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.nio.file.Paths;
+import java.util.UUID;
+
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class AwsS3LearningTest extends IntegrationTestSupport {
 
@@ -32,7 +31,7 @@ public class AwsS3LearningTest extends IntegrationTestSupport {
     StsClient stsClient;
 
     @Test
-    @DisplayName("AWS Security Token Service Test")
+    @DisplayName("AWS Security Token Service를 통해 임시 접근 권한을 획득한다.")
     void getTempAuth() throws Exception {
         // given
         String bucket = "coclimb-media-bucket";
@@ -58,6 +57,63 @@ public class AwsS3LearningTest extends IntegrationTestSupport {
         Assertions.assertThat(sut).isEqualTo("test");
     }
 
+    @Test
+    @DisplayName("특정 리소스에만 접근 가능한 임시 접근 권한을 획득한다.")
+    void getTempAuthForSpecificResource() throws Exception {
+        // given
+        String bucket = "coclimb-media-bucket";
+        String uuid = UUID.randomUUID().toString().substring(0, 8);
+        AssumeRoleRequest assumeRoleRequest = AssumeRoleRequest.builder()
+                .roleArn(ROLE_ARN)
+                .roleSessionName("temp-upload-session")
+                .durationSeconds(900) //최소 15분이어야함
+                .policy(generatePolicy(bucket, "test", uuid))
+                .build();
+
+        Credentials credentials = stsClient.assumeRole(assumeRoleRequest).credentials();
+
+        // when, then
+        uploadToSpecificResource(bucket, "test/" + uuid, credentials);
+    }
+
+    @Test
+    @DisplayName("권한이 없는 리소스에서 접근 시 예외가 발생한다.")
+    void uploadFailToUnauthorizedResource() throws Exception {
+        // given
+        String bucket = "coclimb-media-bucket";
+        String uuid = UUID.randomUUID().toString().substring(0, 8);
+        AssumeRoleRequest assumeRoleRequest = AssumeRoleRequest.builder()
+                .roleArn(ROLE_ARN)
+                .roleSessionName("temp-upload-session")
+                .durationSeconds(900) //최소 15분이어야함
+                .policy(generatePolicy(bucket, "test", uuid))
+                .build();
+
+        Credentials credentials = stsClient.assumeRole(assumeRoleRequest).credentials();
+        // when, then
+        assertThatThrownBy(() -> uploadToS3(bucket, credentials)).isInstanceOf(S3UploadFail.class);
+        assertThatThrownBy(() -> uploadToSpecificResource(bucket, "test/"+uuid+"attack",credentials)).isInstanceOf(S3UploadFail.class);
+        assertThatThrownBy(() -> uploadToSpecificResource(bucket, "test/"+uuid+"/attack",credentials)).isInstanceOf(S3UploadFail.class);
+    }
+
+    public String generatePolicy(String bucketName, String prefix, String resourceName) {
+        String resourceArn = String.format("arn:aws:s3:::%s/%s/%s", bucketName, prefix, resourceName);
+        //prefix : media?
+        String policy = "{\n" +
+                "    \"Version\": \"2012-10-17\",\n" +
+                "    \"Statement\": [\n" +
+                "        {\n" +
+                "            \"Effect\": \"Allow\",\n" +
+                "            \"Action\": [\n" +
+                "                \"s3:PutObject\"\n" +
+                "            ],\n" +
+                "            \"Resource\": \""+resourceArn+"\"\n" +
+                "        }\n" +
+                "    ]\n" +
+                "}";
+
+        return policy;
+    }
     private void uploadToS3(String bucket, Credentials credentials) {
 
         BasicSessionCredentials awsCredentials = new BasicSessionCredentials(credentials.accessKeyId(), credentials.secretAccessKey(), credentials.sessionToken());

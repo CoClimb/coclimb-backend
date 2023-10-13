@@ -3,16 +3,14 @@ package swm.s3.coclimb;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import swm.s3.coclimb.config.propeties.AwsCredentialsProperties;
-import swm.s3.coclimb.config.propeties.AwsRdsProperties;
-import swm.s3.coclimb.config.propeties.ElasticProperties;
-import swm.s3.coclimb.config.propeties.JwtProperties;
+import swm.s3.coclimb.config.propeties.*;
 
 @EnableConfigurationProperties({
 		JwtProperties.class,
 		ElasticProperties.class,
 		AwsRdsProperties.class,
-		AwsCredentialsProperties.class
+		AwsCredentialsProperties.class,
+		AwsS3MediaProperties.class
 })
 @SpringBootApplication
 public class CoclimbApplication {

@@ -1,6 +1,10 @@
 package swm.s3.coclimb.api;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import com.amazonaws.auth.AWSStaticCredentialsProvider;
+import com.amazonaws.auth.BasicSessionCredentials;
+import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
@@ -8,7 +12,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
+import software.amazon.awssdk.services.sts.model.Credentials;
 import swm.s3.coclimb.api.adapter.out.aws.AwsS3Manager;
+import swm.s3.coclimb.api.adapter.out.aws.AwsSTSManager;
 import swm.s3.coclimb.api.adapter.out.persistence.gym.GymDocumentRepository;
 import swm.s3.coclimb.api.adapter.out.filedownload.FileDownloader;
 import swm.s3.coclimb.api.adapter.out.instagram.InstagramOAuthRecord;
@@ -27,6 +33,7 @@ import swm.s3.coclimb.api.adapter.out.persistence.user.UserDocumentRepository;
 import swm.s3.coclimb.api.adapter.out.persistence.user.UserJpaRepository;
 import swm.s3.coclimb.api.adapter.out.persistence.user.UserRepository;
 import swm.s3.coclimb.api.application.service.*;
+import swm.s3.coclimb.api.exception.errortype.aws.S3UploadFail;
 import swm.s3.coclimb.config.AppConfig;
 import swm.s3.coclimb.config.ServerClock;
 import swm.s3.coclimb.config.security.JwtManager;
@@ -114,6 +121,8 @@ public abstract class IntegrationTestSupport {
     protected AwsS3Manager awsS3Manager;
     @Autowired
     protected FileDownloader fileDownloader;
+    @Autowired
+    protected AwsSTSManager awsSTSManager;
 
     // elasticsearch
     @Autowired
@@ -162,5 +171,21 @@ public abstract class IntegrationTestSupport {
         }
 
         return lines;
+    }
+
+    protected void uploadToSpecificResource(String bucket, String key, Credentials credentials) {
+
+        BasicSessionCredentials awsCredentials = new BasicSessionCredentials(credentials.accessKeyId(), credentials.secretAccessKey(), credentials.sessionToken());
+        AmazonS3Client amazonS3Client = (AmazonS3Client) AmazonS3ClientBuilder.standard()
+                .withCredentials(new AWSStaticCredentialsProvider(awsCredentials))
+                .withRegion("ap-northeast-2")
+                .build();
+
+        try {
+            amazonS3Client.putObject(bucket, key, "test");
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new S3UploadFail();
+        }
     }
 }

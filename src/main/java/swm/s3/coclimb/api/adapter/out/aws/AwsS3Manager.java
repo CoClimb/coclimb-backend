@@ -55,4 +55,9 @@ public class AwsS3Manager implements AwsS3UpdatePort {
             throw new LocalFileDeleteFail();
         }
     }
+
+    @Override
+    public String getCloudFrontUrl(String url) {
+        return cloudFrontHost + url;
+    }
 }

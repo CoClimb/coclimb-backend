@@ -5,6 +5,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import swm.s3.coclimb.api.adapter.out.aws.AwsSTSManager;
+import swm.s3.coclimb.api.application.port.out.aws.dto.S3AccessToken;
 import swm.s3.coclimb.api.adapter.out.instagram.dto.InstagramMediaResponseDto;
 import swm.s3.coclimb.api.application.port.in.media.MediaCommand;
 import swm.s3.coclimb.api.application.port.in.media.MediaQuery;
@@ -35,8 +37,11 @@ public class MediaService implements MediaQuery, MediaCommand {
     private final InstagramDataPort instagramDataPort;
     private final MediaLoadPort mediaLoadPort;
     private final MediaUpdatePort mediaUpdatePort;
+
     private final FileDownloadPort fileDownloadPort;
     private final AwsS3UpdatePort awsS3UpdatePort;
+
+    private final AwsSTSManager awsSTSManager;
 
     @Override
     public List<InstagramMediaResponseDto> getMyInstagramVideos(String accessToken) {
@@ -60,13 +65,9 @@ public class MediaService implements MediaQuery, MediaCommand {
             throw new InstagramMediaIdConflict();
         }
 
-        DownloadedFileDetail mediaFile = fileDownloadPort.downloadFile(mediaCreateRequestDto.getMediaUrl());
-        String mediaUrl = awsS3UpdatePort.uploadFile(mediaFile);
-
-        DownloadedFileDetail thumbnailFile = fileDownloadPort.downloadFile(mediaCreateRequestDto.getThumbnailUrl());
-        String thumbnailUrl = awsS3UpdatePort.uploadFile(thumbnailFile);
-
-        mediaUpdatePort.save(mediaCreateRequestDto.toEntity(mediaUrl, thumbnailUrl));
+        mediaUpdatePort.save(mediaCreateRequestDto.toEntity(
+                awsS3UpdatePort.getCloudFrontUrl(mediaCreateRequestDto.getMediaUrl()),
+                awsS3UpdatePort.getCloudFrontUrl(mediaCreateRequestDto.getThumbnailUrl())));
     }
 
     private boolean isInstagramMediaIdDuplicated(String instagramMediaId) {
@@ -137,4 +138,11 @@ public class MediaService implements MediaQuery, MediaCommand {
         awsS3UpdatePort.deleteFile(media.getThumbnailUrl());
         mediaUpdatePort.delete(media);
     }
+
+    @Override
+    public S3AccessToken createS3AccessToken(String bucket, String prefix, Long userId, String action){
+        String key = awsSTSManager.generateKey(prefix, userId);
+        return S3AccessToken.of(bucket, key, awsSTSManager.getCredentials(bucket, key, action));
+    }
+
 }
