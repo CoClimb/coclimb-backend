@@ -51,4 +51,12 @@ public class Media extends BaseTimeEntity {
     public void update(String description) {
         this.description = description;
     }
+
+    public void setMediaUrl(String mediaUrl) {
+        this.mediaUrl = mediaUrl;
+    }
+
+    public void setThumbnailUrl(String thumbnailUrl) {
+        this.thumbnailUrl = thumbnailUrl;
+    }
 }

@@ -20,6 +20,12 @@ spring:
         create_empty_composites:
             enabled: true
 
+oauth:
+  instagram:
+    client_id: ${secret.instagram.client_id}
+    client_secret: ${secret.instagram.client_secret}
+    redirect_uri: ${secret.instagram.redirect_uri}
+
 app-config:
   jwt :
     jwt-key: ${dev.jwt.jwt_key}
@@ -30,6 +36,27 @@ app-config:
     finger-print : ${dev.elastic.finger_print}
     user-name: ${dev.elastic.user_name}
     password: ${dev.elastic.password}
+
+aws-config:
+  rds:
+    secret-name : ${release.aws.rds.secret_name}
+    region : ${release.aws.rds.region}
+    db-url: ${release.db.url}
+  credentials:
+    access_key: ${secret.aws.access_key}
+    secret_key: ${secret.aws.secret_key}
+  s3:
+    bucket: coclimb-media-bucket
+    media:
+      write_role_arn: "arn:aws:iam::085796513949:role/CoclimbS3Access"
+      write_valid_time: 900 # sec
+      read_role_arn: "arn:aws:iam::085796513949:role/CoclimbS3ReadOnly"
+      read_valid_time: 3600 # sec
+  cloudfront:
+    host: ${dev.aws.cloudfront.distribution_domain_name}
+    secret-name: ${dev.aws.cloudfront.secret_name}
+    public_key_id: ${dev.aws.cloudfront.public_key_id}
+    region: ${dev.aws.cloudfront.region}
 
 
 logging:

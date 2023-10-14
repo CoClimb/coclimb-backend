@@ -6,7 +6,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.test.web.servlet.ResultActions;
-import software.amazon.awssdk.services.sts.model.Credentials;
 import swm.s3.coclimb.api.RestDocsTestSupport;
 import swm.s3.coclimb.api.adapter.in.web.media.dto.MediaCreateInstagramInfo;
 import swm.s3.coclimb.api.adapter.in.web.media.dto.MediaCreateProblemInfo;
@@ -14,13 +13,10 @@ import swm.s3.coclimb.api.adapter.in.web.media.dto.MediaCreateRequest;
 import swm.s3.coclimb.api.adapter.in.web.media.dto.MediaUpdateRequest;
 import swm.s3.coclimb.api.adapter.out.aws.AwsS3Manager;
 import swm.s3.coclimb.api.adapter.out.filedownload.FileDownloader;
-import swm.s3.coclimb.api.adapter.out.persistence.user.UserJpaRepository;
-import swm.s3.coclimb.api.application.port.out.aws.dto.S3AccessToken;
 import swm.s3.coclimb.api.application.port.out.filedownload.DownloadedFileDetail;
 import swm.s3.coclimb.domain.media.InstagramMediaInfo;
 import swm.s3.coclimb.domain.media.Media;
 import swm.s3.coclimb.domain.media.MediaProblemInfo;
-import swm.s3.coclimb.domain.user.InstagramUserInfo;
 import swm.s3.coclimb.domain.user.User;
 
 import java.time.LocalDate;
@@ -30,7 +26,6 @@ import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.startsWith;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willDoNothing;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
@@ -41,8 +36,6 @@ import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuild
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.*;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.restdocs.request.RequestDocumentation.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -110,10 +103,10 @@ public class MediaControllerDocsTest extends RestDocsTestSupport {
                                 .description("미디어 타입"),
                         fieldWithPath("mediaUrl")
                                 .type(JsonFieldType.STRING)
-                                .description("미디어 CDN URL"),
+                                .description("1. 업로드 한 미디어가 저장된 S3 bucket의 key 혹은 2. 외부 플랫폼 미디어 CDN URL"),
                         fieldWithPath("thumbnailUrl")
                                 .type(JsonFieldType.STRING)
-                                .description("미디어 썸네일 CDN URL"),
+                                .description("1. 업로드 한 썸네일이 저장된 S3 bucket의 key 혹은 2. 외부 플랫폼 썸네일 CDN URL"),
                         fieldWithPath("description")
                                 .type(JsonFieldType.STRING)
                                 .optional()
@@ -157,6 +150,7 @@ public class MediaControllerDocsTest extends RestDocsTestSupport {
 
         mediaJpaRepository.saveAll(IntStream.range(0, 10).mapToObj(i -> Media.builder()
                         .user(users.get(i))
+                        .mediaUrl("mediaUrl")
                         .thumbnailUrl("thumbnailUrl" + String.valueOf(i))
                         .mediaProblemInfo(MediaProblemInfo.builder()
                                 .gymName("gym" + String.valueOf(i))
@@ -277,12 +271,13 @@ public class MediaControllerDocsTest extends RestDocsTestSupport {
 
         //when
         //then
-        ResultActions result = mockMvc.perform(get("/medias/{id}", mediaId))
+        ResultActions result = mockMvc.perform(org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get("/medias/{id}", mediaId))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(mediaId))
-                .andExpect(jsonPath("$.thumbnailUrl").value("thumbnailUrl"))
                 .andExpect(jsonPath("$.username").value("username"))
-                .andExpect(jsonPath("$.mediaUrl").value("mediaUrl"))
+                .andExpect(jsonPath("$.platform").value("INSTAGRAM"))
+                .andExpect(jsonPath("$.mediaUrl").isString())
+                .andExpect(jsonPath("$.thumbnailUrl").isString())
                 .andExpect(jsonPath("$.description").value("description"))
                 .andExpect(jsonPath("$.problem.clearDate").value(LocalDate.now().toString()))
                 .andExpect(jsonPath("$.problem.gymName").value("gymName"))

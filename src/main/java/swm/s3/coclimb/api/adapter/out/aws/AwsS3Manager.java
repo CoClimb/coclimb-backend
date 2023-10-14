@@ -9,6 +9,7 @@ import swm.s3.coclimb.api.application.port.out.filedownload.DownloadedFileDetail
 import swm.s3.coclimb.api.exception.errortype.aws.LocalFileDeleteFail;
 import swm.s3.coclimb.api.exception.errortype.aws.S3DeleteFail;
 import swm.s3.coclimb.api.exception.errortype.aws.S3UploadFail;
+import swm.s3.coclimb.config.propeties.AwsCloudFrontProperties;
 
 import java.io.File;
 
@@ -17,11 +18,9 @@ import java.io.File;
 public class AwsS3Manager implements AwsS3UpdatePort {
 
     private final AmazonS3Client amazonS3Client;
-
-    @Value("${cloud.aws.s3.bucket}")
+    private final AwsCloudFrontProperties cloudFrontProperties;
+    @Value("${aws-config.s3.bucket}")
     private String bucket;
-    @Value("${cloud.aws.cloud_front.host}")
-    private String cloudFrontHost;
 
     @Override
     public String uploadFile(DownloadedFileDetail fileDetail) {
@@ -30,7 +29,7 @@ public class AwsS3Manager implements AwsS3UpdatePort {
         try {
             uploadFile = new File(fileDetail.getPath());
             amazonS3Client.putObject(bucket, fileDetail.getName(), uploadFile);
-            return cloudFrontHost + fileDetail.getName();
+            return cloudFrontProperties.getHost() + fileDetail.getName();
         } catch (Exception e) {
             throw new S3UploadFail();
         } finally {
@@ -41,7 +40,7 @@ public class AwsS3Manager implements AwsS3UpdatePort {
     @Override
     public void deleteFile(String fileUrl) {
         try {
-            String fileName = fileUrl.substring(cloudFrontHost.length());
+            String fileName = fileUrl.substring(cloudFrontProperties.getHost().length());
             amazonS3Client.deleteObject(bucket, fileName);
         } catch (Exception e) {
             throw new S3DeleteFail();
@@ -56,8 +55,4 @@ public class AwsS3Manager implements AwsS3UpdatePort {
         }
     }
 
-    @Override
-    public String getCloudFrontUrl(String url) {
-        return cloudFrontHost + url;
-    }
 }

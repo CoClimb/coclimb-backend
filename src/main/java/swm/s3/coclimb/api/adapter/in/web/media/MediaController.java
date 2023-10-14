@@ -114,7 +114,7 @@ public class MediaController {
     }
 
     @GetMapping("/medias/upload-token")
-    public ResponseEntity<S3AccessTokenResponse> getMediaUploadToken(@LoginUser User user, @RequestParam Integer type) {
+    public ResponseEntity<S3AccessTokenResponse> getMediaUploadToken(@LoginUser User user, @RequestParam int type) {
         String prefix;
         switch (type){
             case 0:

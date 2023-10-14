@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import software.amazon.awssdk.services.sts.model.Credentials;
+import swm.s3.coclimb.api.adapter.out.aws.AwsCloudFrontManager;
 import swm.s3.coclimb.api.adapter.out.aws.AwsS3Manager;
 import swm.s3.coclimb.api.adapter.out.aws.AwsSTSManager;
 import swm.s3.coclimb.api.adapter.out.persistence.gym.GymDocumentRepository;
@@ -36,6 +37,7 @@ import swm.s3.coclimb.api.application.service.*;
 import swm.s3.coclimb.api.exception.errortype.aws.S3UploadFail;
 import swm.s3.coclimb.config.AppConfig;
 import swm.s3.coclimb.config.ServerClock;
+import swm.s3.coclimb.config.propeties.AwsCloudFrontProperties;
 import swm.s3.coclimb.config.security.JwtManager;
 import swm.s3.coclimb.docker.DockerComposeRunner;
 
@@ -123,6 +125,10 @@ public abstract class IntegrationTestSupport {
     protected FileDownloader fileDownloader;
     @Autowired
     protected AwsSTSManager awsSTSManager;
+    @Autowired
+    protected AwsCloudFrontManager awsCloudFrontManager;
+    @Autowired
+    protected AwsCloudFrontProperties cloudFrontProperties;
 
     // elasticsearch
     @Autowired

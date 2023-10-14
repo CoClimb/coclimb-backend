@@ -187,7 +187,7 @@ class MediaControllerTest extends ControllerTestSupport {
         // given
         String accessToken = "token";
         given(jwtManager.getSubject(accessToken)).willReturn("1");
-        given(userLoadPort.getById(1L)).willReturn(User.builder()
+        given(userLoadPort.getById(any())).willReturn(User.builder()
                 .name("username")
                 .instagramUserInfo(InstagramUserInfo.builder().build())
                 .build());
@@ -202,7 +202,7 @@ class MediaControllerTest extends ControllerTestSupport {
         given(mediaCommand.createS3AccessToken(any(), any(), any(),any())).willReturn(s3AccessToken);
 
         // when, then
-        mockMvc.perform(get("/medias/access-token")
+        mockMvc.perform(get("/medias/upload-token")
                         .header("Authorization", accessToken)
                         .queryParam("type", "-1"))
                 .andDo(print())

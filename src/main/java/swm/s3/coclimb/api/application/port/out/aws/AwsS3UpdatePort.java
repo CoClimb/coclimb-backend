@@ -7,5 +7,4 @@ public interface AwsS3UpdatePort {
 
     void deleteFile(String fileUrl);
 
-    String getCloudFrontUrl(String url);
 }

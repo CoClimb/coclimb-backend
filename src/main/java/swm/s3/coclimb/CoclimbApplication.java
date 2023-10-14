@@ -10,7 +10,8 @@ import swm.s3.coclimb.config.propeties.*;
 		ElasticProperties.class,
 		AwsRdsProperties.class,
 		AwsCredentialsProperties.class,
-		AwsS3MediaProperties.class
+		AwsS3MediaProperties.class,
+		AwsCloudFrontProperties.class
 })
 @SpringBootApplication
 public class CoclimbApplication {
