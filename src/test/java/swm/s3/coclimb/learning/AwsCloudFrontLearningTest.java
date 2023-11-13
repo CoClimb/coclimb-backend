@@ -32,8 +32,6 @@ public class AwsCloudFrontLearningTest {
     @DisplayName("서명된 URL을 획득하여 콘텐츠를 조회한다.")
     void getContentBySignedUrl() throws Exception {
         // given
-
-
         String privateKeyContent = getPrivateKeyFromSecret();
         System.out.println("privateKeyContent = " + privateKeyContent);
         PrivateKey privateKey=null;
@@ -61,7 +59,6 @@ public class AwsCloudFrontLearningTest {
         String content = fetchContentFromSignedUrl(signedUrl.url());
         System.out.println("content = " + content);
         Assertions.assertThat(content).isNotEmpty();
-
     }
 
 

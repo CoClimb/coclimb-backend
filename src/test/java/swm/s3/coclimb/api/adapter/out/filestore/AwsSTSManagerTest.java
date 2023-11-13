@@ -1,4 +1,4 @@
-package swm.s3.coclimb.api.adapter.out.aws;
+package swm.s3.coclimb.api.adapter.out.filestore;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;

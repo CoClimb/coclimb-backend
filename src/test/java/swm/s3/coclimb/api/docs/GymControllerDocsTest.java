@@ -194,7 +194,8 @@ class GymControllerDocsTest extends RestDocsTestSupport {
         ResultActions result = mockMvc.perform(get("/gyms/info/{name}", "암장이름"))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.name").value("암장이름"));
+                .andExpect(jsonPath("$.name").value("암장이름"))
+                .andExpect(jsonPath("$.gradingSystem").value("gradingSystem"));
 
         result.andDo(document("gym-info",
                 preprocessRequest(prettyPrint()),

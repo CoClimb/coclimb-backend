@@ -1,4 +1,4 @@
-package swm.s3.coclimb.api.adapter.out.aws;
+package swm.s3.coclimb.api.adapter.out.filestore;
 
 import software.amazon.awssdk.services.cloudfront.CloudFrontUtilities;
 import software.amazon.awssdk.services.cloudfront.model.CustomSignerRequest;
@@ -23,8 +23,8 @@ public class AwsCloudFrontManager {
         cloudFrontUtilities = CloudFrontUtilities.create();
     }
 
-    public SignedUrl getSignedUrl (String mediaUrl) {
-        return cloudFrontUtilities.getSignedUrlWithCustomPolicy(createRequestForCustomPolicy(mediaUrl));
+    public SignedUrl getSignedUrl (String s3Key) {
+        return cloudFrontUtilities.getSignedUrlWithCustomPolicy(createRequestForCustomPolicy(getCloudFrontUrl(s3Key)));
     }
 
     private CustomSignerRequest createRequestForCustomPolicy(String mediaUrl) {
@@ -36,7 +36,7 @@ public class AwsCloudFrontManager {
                 .build();
     }
 
-    public String getCloudFrontUrl(String url) {
-        return host+"/"+ url;
+    public String getCloudFrontUrl(String s3Key) {
+        return host+"/"+ s3Key;
     }
 }

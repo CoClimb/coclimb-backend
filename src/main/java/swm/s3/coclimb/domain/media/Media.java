@@ -21,12 +21,11 @@ public class Media extends BaseTimeEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="user_id")
     private User user;
-    private String mediaType;
-    private String platform;
+
     @Length(max = 2048)
-    private String mediaUrl;
+    private String videoKey;
     @Length(max = 2048)
-    private String thumbnailUrl;
+    private String thumbnailKey;
     @Length(max = 1024)
     private String description;
 
@@ -37,12 +36,10 @@ public class Media extends BaseTimeEntity {
     private MediaProblemInfo mediaProblemInfo;
 
     @Builder
-    public Media(User user, String mediaType, String platform, String mediaUrl, String thumbnailUrl, String description, InstagramMediaInfo instagramMediaInfo, MediaProblemInfo mediaProblemInfo) {
+    public Media(User user, String videoKey, String thumbnailKey, String description, InstagramMediaInfo instagramMediaInfo, MediaProblemInfo mediaProblemInfo) {
         this.user = user;
-        this.mediaType = mediaType;
-        this.platform = platform;
-        this.mediaUrl = mediaUrl;
-        this.thumbnailUrl = thumbnailUrl;
+        this.videoKey = videoKey;
+        this.thumbnailKey = thumbnailKey;
         this.description = description;
         this.instagramMediaInfo = instagramMediaInfo;
         this.mediaProblemInfo = mediaProblemInfo;
@@ -52,11 +49,4 @@ public class Media extends BaseTimeEntity {
         this.description = description;
     }
 
-    public void setMediaUrl(String mediaUrl) {
-        this.mediaUrl = mediaUrl;
-    }
-
-    public void setThumbnailUrl(String thumbnailUrl) {
-        this.thumbnailUrl = thumbnailUrl;
-    }
 }

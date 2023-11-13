@@ -82,6 +82,7 @@ dependencies {
 	implementation group: 'software.amazon.awssdk', name: 'secretsmanager', version: '2.20.151'
 	implementation group: 'software.amazon.awssdk', name: 'sts', version: '2.20.151'
 	implementation group: 'software.amazon.awssdk', name: 'cloudfront', version: '2.20.151'
+	implementation group: 'software.amazon.awssdk', name: 's3', version: '2.20.151'
 
 
 }

@@ -2,9 +2,9 @@ package swm.s3.coclimb.api.adapter.in.web.media;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.lang.Nullable;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import swm.s3.coclimb.api.adapter.in.web.media.dto.*;
@@ -12,11 +12,11 @@ import swm.s3.coclimb.api.adapter.out.oauth.instagram.dto.InstagramMediaResponse
 import swm.s3.coclimb.api.application.port.in.media.MediaCommand;
 import swm.s3.coclimb.api.application.port.in.media.MediaQuery;
 import swm.s3.coclimb.api.application.port.in.media.dto.MediaDeleteRequestDto;
-import swm.s3.coclimb.api.application.port.in.media.dto.MediaPageRequestDto;
+import swm.s3.coclimb.api.application.port.in.media.dto.MediaInfo;
+import swm.s3.coclimb.api.application.port.in.media.dto.MediaPageRequest;
 import swm.s3.coclimb.api.exception.FieldErrorType;
 import swm.s3.coclimb.api.exception.errortype.ValidationFail;
 import swm.s3.coclimb.config.argumentresolver.LoginUser;
-import swm.s3.coclimb.domain.media.Media;
 import swm.s3.coclimb.domain.user.User;
 
 import java.util.List;
@@ -28,8 +28,6 @@ public class MediaController {
 
     private final MediaQuery mediaQuery;
     private final MediaCommand mediaCommand;
-    private static final String WRITE_ACTION = "PutObject";
-
 
     @PostMapping("/medias")
     public ResponseEntity<Void> createMedia(@RequestBody @Valid MediaCreateRequest mediaCreateRequest, @LoginUser User user) {
@@ -39,6 +37,7 @@ public class MediaController {
                 .build();
     }
 
+    @Deprecated
     @GetMapping("/medias/instagram/my-videos")
     public ResponseEntity<InstagramMyVideosResponse> getMyInstagramVideos(@LoginUser User user) {
         List<InstagramMediaResponseDto> myInstagramVideos = mediaQuery.getMyInstagramVideos(user.getInstagramUserInfo().getAccessToken());
@@ -48,45 +47,24 @@ public class MediaController {
     @GetMapping("/medias")
     public ResponseEntity<MediaPageResponse> getPagedMedias(@RequestParam(defaultValue = "0") int page,
                                                           @RequestParam(defaultValue = "10") int size,
-                                                          @RequestParam(defaultValue = "null") String gymName,
-                                                          @RequestParam(defaultValue = "null") String userName) {
+                                                          @RequestParam @Nullable String gymName,
+                                                          @RequestParam @Nullable String userName) {
         if (page < 0) {
             throw ValidationFail.onRequest()
                     .addField("page", FieldErrorType.MIN(0));
         }
 
-        Page<Media> pagedMedias;
-
-        if(!gymName.equals("null") && !userName.equals("null")) {
-            pagedMedias = mediaQuery.getPagedMediasByGymNameAndUserName(gymName, userName, MediaPageRequestDto
-                    .builder()
-                    .page(page)
-                    .size(size)
-                    .build());
-        } else if(!gymName.equals("null")) {
-                pagedMedias = mediaQuery.getPagedMediasByGymName(gymName, MediaPageRequestDto.builder()
-                        .page(page)
-                        .size(size)
-                        .build());
-        } else if(!userName.equals("null")) {
-            pagedMedias = mediaQuery.getPagedMediasByUserName(userName, MediaPageRequestDto.builder()
-                    .page(page)
-                    .size(size)
-                    .build());
-        } else {
-            pagedMedias = mediaQuery.getPagedMedias(MediaPageRequestDto.builder()
-                    .page(page)
-                    .size(size)
-                    .build());
-        }
-
-        return ResponseEntity.ok(MediaPageResponse.of(pagedMedias));
+        return ResponseEntity.ok(MediaPageResponse.of(mediaQuery.getPagedMedias(MediaPageRequest.builder()
+                .page(page)
+                .size(size)
+                .gymName(gymName)
+                .userName(userName)
+                .build())));
     }
 
     @GetMapping("/medias/{id}")
-    public ResponseEntity<MediaInfoResponse> getMediaInfo(@PathVariable Long id) {
-        Media media = mediaQuery.getMediaById(id);
-        return ResponseEntity.ok(MediaInfoResponse.of(media));
+    public ResponseEntity<MediaInfo> getMediaInfo(@PathVariable Long id) {
+        return ResponseEntity.ok(mediaQuery.getMediaById(id));
     }
 
     @DeleteMapping("/medias/{id}")
@@ -113,24 +91,12 @@ public class MediaController {
                 .build();
     }
 
-    @GetMapping("/medias/upload-token")
-    public ResponseEntity<S3AccessTokenResponse> getMediaUploadToken(@LoginUser User user, @RequestParam int type) {
-        String prefix;
-        switch (type){
-            case 0:
-                prefix = "media";
-                break;
-            case 1:
-                prefix = "thumbnail";
-                break;
-            default:
-                throw ValidationFail.onRequest()
-                        .addField("type", FieldErrorType.NOT_MATCH);
-        }
+    @GetMapping("/medias/upload")
+    public ResponseEntity<MediaUploadUrlResponse> getMediaUploadUrl(@LoginUser User user) {
 
         return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(S3AccessTokenResponse.of(
-                        mediaCommand.createS3AccessToken("coclimb-media-bucket", prefix, user.getId(), WRITE_ACTION)));
+                .status(HttpStatus.OK)
+                .body(MediaUploadUrlResponse.of(
+                        mediaQuery.getUploadUrl(user.getId())));
     }
 }

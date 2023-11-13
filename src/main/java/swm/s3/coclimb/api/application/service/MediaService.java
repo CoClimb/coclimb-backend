@@ -6,23 +6,20 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import swm.s3.coclimb.api.adapter.out.aws.AwsCloudFrontManager;
-import swm.s3.coclimb.api.adapter.out.aws.AwsSTSManager;
-import swm.s3.coclimb.api.application.port.out.aws.dto.S3AccessToken;
+import swm.s3.coclimb.api.adapter.out.filestore.AwsCloudFrontManager;
+import swm.s3.coclimb.api.adapter.out.filestore.AwsSTSManager;
 import swm.s3.coclimb.api.adapter.out.oauth.instagram.dto.InstagramMediaResponseDto;
 import swm.s3.coclimb.api.application.port.in.media.MediaCommand;
 import swm.s3.coclimb.api.application.port.in.media.MediaQuery;
-import swm.s3.coclimb.api.application.port.in.media.dto.MediaCreateRequestDto;
-import swm.s3.coclimb.api.application.port.in.media.dto.MediaDeleteRequestDto;
-import swm.s3.coclimb.api.application.port.in.media.dto.MediaPageRequestDto;
-import swm.s3.coclimb.api.application.port.in.media.dto.MediaUpdateRequestDto;
-import swm.s3.coclimb.api.application.port.out.aws.AwsS3UpdatePort;
-import swm.s3.coclimb.api.application.port.out.aws.dto.S3AccessToken;
-import swm.s3.coclimb.api.application.port.out.filedownload.FileDownloadPort;
+import swm.s3.coclimb.api.application.port.in.media.dto.*;
+import swm.s3.coclimb.api.application.port.out.filestore.FileStoreLoadPort;
+import swm.s3.coclimb.api.application.port.out.filestore.FileStoreUpdatePort;
+import swm.s3.coclimb.api.application.port.out.filestore.dto.MediaUploadUrl;
 import swm.s3.coclimb.api.application.port.out.oauth.instagram.InstagramDataPort;
 import swm.s3.coclimb.api.application.port.out.persistence.media.MediaLoadPort;
 import swm.s3.coclimb.api.application.port.out.persistence.media.MediaUpdatePort;
 import swm.s3.coclimb.api.exception.errortype.media.InstagramMediaIdConflict;
+import swm.s3.coclimb.api.exception.errortype.media.InvalidMediaUrl;
 import swm.s3.coclimb.api.exception.errortype.media.MediaNotFound;
 import swm.s3.coclimb.api.exception.errortype.media.MediaOwnerNotMatched;
 import swm.s3.coclimb.domain.media.InstagramMediaInfo;
@@ -30,6 +27,9 @@ import swm.s3.coclimb.domain.media.Media;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
 @Transactional(readOnly = true)
@@ -40,13 +40,12 @@ public class MediaService implements MediaQuery, MediaCommand {
     private final MediaLoadPort mediaLoadPort;
     private final MediaUpdatePort mediaUpdatePort;
 
-    private final FileDownloadPort fileDownloadPort;
-    private final AwsS3UpdatePort awsS3UpdatePort;
+    private final FileStoreLoadPort fileStoreLoadPort;
+    private final FileStoreUpdatePort fileStoreUpdatePort;
 
-    private final AwsSTSManager awsSTSManager;
     private final AwsCloudFrontManager awsCloudFrontManager;
 
-    @Deprecated
+
     @Override
     public List<InstagramMediaResponseDto> getMyInstagramVideos(String accessToken) {
         List<InstagramMediaResponseDto> myMedias = instagramDataPort.getMyMedias(accessToken);
@@ -69,8 +68,20 @@ public class MediaService implements MediaQuery, MediaCommand {
             throw new InstagramMediaIdConflict();
         }
         mediaUpdatePort.save(mediaCreateRequestDto.toEntity(
-                awsCloudFrontManager.getCloudFrontUrl(mediaCreateRequestDto.getMediaUrl()),
-                awsCloudFrontManager.getCloudFrontUrl(mediaCreateRequestDto.getThumbnailUrl())));
+                extractKeyFrom(mediaCreateRequestDto.getVideoUrl()),
+                extractKeyFrom(mediaCreateRequestDto.getThumbnailUrl())));
+    }
+
+    private String extractKeyFrom(String url){
+        String regex = ".+/([^?]+)/([^?]+)/([^?]+)\\?.*";
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(url);
+
+        if (matcher.find()) {
+            return String.format("%s/%s/%s", matcher.group(1), matcher.group(2), matcher.group(3));
+        } else {
+            throw new InvalidMediaUrl();
+        }
     }
 
     private boolean isInstagramMediaIdDuplicated(String instagramMediaId) {
@@ -79,55 +90,40 @@ public class MediaService implements MediaQuery, MediaCommand {
 
 
     @Override
-    public Page<Media> getPagedMedias(MediaPageRequestDto requestDto) {
+    public Page<MediaInfo> getPagedMedias(MediaPageRequest request) {
         PageRequest pageRequest = PageRequest.of(
-                requestDto.getPage(),
-                requestDto.getSize());
-        return getSignedPage(mediaLoadPort.findAllPaged(pageRequest));
+                request.getPage(),
+                request.getSize());
+        Page<Media> page;
+        if (request.getGymName() != null && request.getUserName() != null) {
+            page = mediaLoadPort.findPagedByGymNameAndUserName(request.getGymName(), request.getUserName(), pageRequest);
+        } else if (request.getGymName() != null) {
+            page = mediaLoadPort.findPagedByGymName(request.getGymName(), pageRequest);
+        } else if (request.getUserName() != null) {
+            page = mediaLoadPort.findPagedByUserName(request.getUserName(), pageRequest);
+        } else {
+            page = mediaLoadPort.findAllPaged(pageRequest);
+        }
+
+        return getSignedPage(page);
     }
 
     @Override
-    public Page<Media> getPagedMediasByGymName(String gymName, MediaPageRequestDto requestDto) {
-        PageRequest pageRequest = PageRequest.of(
-                requestDto.getPage(),
-                requestDto.getSize());
-
-        return getSignedPage(mediaLoadPort.findPagedByGymName(gymName, pageRequest));
-    }
-
-    @Override
-    public Page<Media> getPagedMediasByUserName(String userName, MediaPageRequestDto requestDto) {
-        PageRequest pageRequest = PageRequest.of(
-                requestDto.getPage(),
-                requestDto.getSize());
-
-        return getSignedPage(mediaLoadPort.findPagedByUserName(userName, pageRequest));
-    }
-
-    @Override
-    public Page<Media> getPagedMediasByGymNameAndUserName(String gymName, String userName, MediaPageRequestDto requestDto) {
-        PageRequest pageRequest = PageRequest.of(
-                requestDto.getPage(),
-                requestDto.getSize());
-
-        return getSignedPage(mediaLoadPort.findPagedByGymNameAndUserName(gymName, userName, pageRequest));
-    }
-
-    @Override
-    public Media getMediaById(Long mediaId) {
+    public MediaInfo getMediaById(Long mediaId) {
         return signUrl(mediaLoadPort.findById(mediaId).orElseThrow(MediaNotFound::new));
     }
 
-    private PageImpl<Media> getSignedPage(Page<Media> page) {
+    private PageImpl<MediaInfo> getSignedPage(Page<Media> page) {
         return new PageImpl<>(page.getContent().stream().map(this::signUrl).toList(),
                 PageRequest.of(page.getNumber(), page.getSize()),
                 page.getTotalElements());
     }
 
-    private Media signUrl(Media media) {
-        media.setMediaUrl(awsCloudFrontManager.getSignedUrl(media.getMediaUrl()).url());
-        media.setThumbnailUrl(awsCloudFrontManager.getSignedUrl(media.getThumbnailUrl()).url());
-        return media;
+    private MediaInfo signUrl(Media media) {
+
+        return MediaInfo.of(media,
+                awsCloudFrontManager.getSignedUrl(media.getVideoKey()).url(),
+                awsCloudFrontManager.getSignedUrl(media.getThumbnailKey()).url());
     }
 
     @Override
@@ -148,15 +144,19 @@ public class MediaService implements MediaQuery, MediaCommand {
             throw new MediaOwnerNotMatched();
         }
 
-        awsS3UpdatePort.deleteFile(media.getMediaUrl());
-        awsS3UpdatePort.deleteFile(media.getThumbnailUrl());
+        fileStoreUpdatePort.deleteFile(media.getVideoKey());
+        fileStoreUpdatePort.deleteFile(media.getThumbnailKey());
         mediaUpdatePort.delete(media);
     }
 
     @Override
-    public S3AccessToken createS3AccessToken(String bucket, String prefix, Long userId, String action) {
-        String key = awsSTSManager.generateKey(prefix, userId);
-        return S3AccessToken.of(bucket, key, awsSTSManager.getCredentials(bucket, key, action));
+    public MediaUploadUrl getUploadUrl(Long userId) {
+        UUID uuid = UUID.randomUUID();
+
+        return MediaUploadUrl.builder()
+                .videoUploadUrl(fileStoreLoadPort.getUploadUrl(String.format("%s/%s/%s.%s", userId, "video", uuid, "mp4")).toString())
+                .thumbnailUploadUrl(fileStoreLoadPort.getUploadUrl(String.format("%s/%s/%s.%s", userId, "thumbnail", uuid, "jpg")).toString())
+                .build();
     }
 
 }
