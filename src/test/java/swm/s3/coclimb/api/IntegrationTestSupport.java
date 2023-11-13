@@ -13,14 +13,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import software.amazon.awssdk.services.sts.model.Credentials;
-import swm.s3.coclimb.api.adapter.out.aws.AwsCloudFrontManager;
-import swm.s3.coclimb.api.adapter.out.aws.AwsS3Manager;
-import swm.s3.coclimb.api.adapter.out.aws.AwsSTSManager;
+import swm.s3.coclimb.api.adapter.out.filestore.AwsCloudFrontManager;
+import swm.s3.coclimb.api.adapter.out.filestore.AwsS3Manager;
+import swm.s3.coclimb.api.adapter.out.filestore.AwsSTSManager;
+import swm.s3.coclimb.api.adapter.out.persistence.gym.GymDocumentRepository;
 import swm.s3.coclimb.api.adapter.out.filedownload.FileDownloader;
 import swm.s3.coclimb.api.adapter.out.oauth.instagram.InstagramOAuthRecord;
 import swm.s3.coclimb.api.adapter.out.oauth.instagram.InstagramRestApi;
 import swm.s3.coclimb.api.adapter.out.oauth.instagram.InstagramRestApiManager;
-import swm.s3.coclimb.api.adapter.out.persistence.gym.GymDocumentRepository;
 import swm.s3.coclimb.api.adapter.out.persistence.gym.GymJpaRepository;
 import swm.s3.coclimb.api.adapter.out.persistence.gym.GymRepository;
 import swm.s3.coclimb.api.adapter.out.persistence.gymlike.GymLikeJpaRepository;
@@ -36,12 +36,15 @@ import swm.s3.coclimb.api.adapter.out.persistence.user.UserRepository;
 import swm.s3.coclimb.api.application.service.*;
 import swm.s3.coclimb.api.exception.errortype.aws.S3UploadFail;
 import swm.s3.coclimb.config.AppConfig;
+import swm.s3.coclimb.config.AwsConfig;
 import swm.s3.coclimb.config.ServerClock;
 import swm.s3.coclimb.config.propeties.AwsCloudFrontProperties;
 import swm.s3.coclimb.config.security.JwtManager;
 import swm.s3.coclimb.docker.DockerComposeRunner;
 
 import java.io.*;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -55,7 +58,7 @@ public abstract class IntegrationTestSupport {
 
     @BeforeAll
     static void setUpContainer() {
-//        dockerRunner.runTestContainers();
+        dockerRunner.runTestContainers();
     }
 
     // User
@@ -120,7 +123,11 @@ public abstract class IntegrationTestSupport {
 
     // Aws
     @Autowired
+    protected AwsConfig awsConfig;
+    @Autowired
     protected AwsS3Manager awsS3Manager;
+    @Autowired
+    protected AmazonS3Client amazonS3Client;
     @Autowired
     protected FileDownloader fileDownloader;
     @Autowired
@@ -193,5 +200,28 @@ public abstract class IntegrationTestSupport {
             e.printStackTrace();
             throw new S3UploadFail();
         }
+    }
+
+    protected Integer uploadByPreSignedUrl(URL url) {
+        try {
+
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            // HTTP PUT 메서드를 설정. presigned URL은 특정 HTTP 메서드와 연결됩니다.
+            connection.setRequestMethod("PUT");
+            // 출력을 위한 연결을 할 수 있도록 설정.
+            connection.setDoOutput(true);
+            // 텍스트 컨텐츠 유형 설정.
+            connection.setRequestProperty("Content-Type", "text/plain");
+
+            try (OutputStream out = connection.getOutputStream()) {
+                out.write("textToUpload".getBytes("UTF-8"));
+            }
+
+            System.out.println("HTTP response code: " + connection.getResponseCode());
+            return connection.getResponseCode();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0;
     }
 }

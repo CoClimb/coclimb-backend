@@ -11,7 +11,6 @@ import swm.s3.coclimb.domain.media.MediaProblemInfo;
 public class MediaInfoResponse {
     Long id;
     String username;
-    String platform;
     String mediaUrl;
     String thumbnailUrl;
     String description;
@@ -22,7 +21,6 @@ public class MediaInfoResponse {
     private MediaInfoResponse(Long id, String username, String platform, String mediaUrl, String thumbnailUrl, String description, MediaProblemInfo problem) {
         this.id = id;
         this.username = username;
-        this.platform = platform;
         this.mediaUrl = mediaUrl;
         this.thumbnailUrl = thumbnailUrl;
         this.description = description;
@@ -33,9 +31,8 @@ public class MediaInfoResponse {
         return MediaInfoResponse.builder()
                 .id(media.getId())
                 .username(media.getUser().getName())
-                .platform(media.getPlatform())
-                .mediaUrl(media.getMediaUrl())
-                .thumbnailUrl(media.getThumbnailUrl())
+                .mediaUrl(media.getVideoKey())
+                .thumbnailUrl(media.getThumbnailKey())
                 .description(media.getDescription())
                 .problem(media.getMediaProblemInfo())
                 .build();

@@ -12,8 +12,7 @@ public class MediaCreateRequestDto {
     User user;
     String username;
     String platform;
-    String mediaUrl;
-    String mediaType;
+    String videoUrl;
     String thumbnailUrl;
     String description;
 
@@ -21,25 +20,22 @@ public class MediaCreateRequestDto {
     MediaProblemInfo mediaProblemInfo;
 
     @Builder
-    public MediaCreateRequestDto(User user, String username, String platform, String mediaUrl, String mediaType, String thumbnailUrl, InstagramMediaInfo instagramMediaInfo, MediaProblemInfo mediaProblemInfo, String description) {
+    public MediaCreateRequestDto(User user, String username, String platform, String videoUrl, String thumbnailUrl, InstagramMediaInfo instagramMediaInfo, MediaProblemInfo mediaProblemInfo, String description) {
         this.user = user;
         this.username = username;
         this.platform = platform;
-        this.mediaUrl = mediaUrl;
-        this.mediaType = mediaType;
+        this.videoUrl = videoUrl;
         this.thumbnailUrl = thumbnailUrl;
         this.description = description;
         this.instagramMediaInfo = instagramMediaInfo;
         this.mediaProblemInfo = mediaProblemInfo;
     }
 
-    public Media toEntity(String mediaUrl, String thumbnailUrl) {
+    public Media toEntity(String videoKey, String thumbnailKey) {
         return Media.builder()
-                .platform(platform)
                 .user(user)
-                .mediaUrl(mediaUrl)
-                .mediaType(mediaType)
-                .thumbnailUrl(thumbnailUrl)
+                .videoKey(videoKey)
+                .thumbnailKey(thumbnailKey)
                 .instagramMediaInfo(instagramMediaInfo)
                 .mediaProblemInfo(mediaProblemInfo)
                 .description(description)

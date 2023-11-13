@@ -118,6 +118,7 @@ class GymServiceTest extends IntegrationTestSupport {
         // given
         gymDocumentRepository.save(GymDocument.fromDomain(gymJpaRepository.save(Gym.builder()
                 .name("테스트 암장")
+                .gradingSystem("w-g-b-...")
                 .build())));
 
         // when
@@ -125,6 +126,7 @@ class GymServiceTest extends IntegrationTestSupport {
 
         // then
         assertThat(sut.getName()).isEqualTo("테스트 암장");
+        assertThat(sut.getGradingSystem()).isEqualTo("w-g-b-...");
     }
 
 

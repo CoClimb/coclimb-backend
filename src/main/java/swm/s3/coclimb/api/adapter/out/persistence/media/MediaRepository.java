@@ -29,22 +29,22 @@ public class MediaRepository implements MediaLoadPort, MediaUpdatePort {
 
     @Override
     public Page<Media> findAllPaged(PageRequest pageRequest) {
-        return mediaJpaRepository.findByIdNotNull(pageRequest);
+        return mediaJpaRepository.findByIdNotNullOrderByCreatedAtDesc(pageRequest);
     }
 
     @Override
     public Page<Media> findPagedByGymName(String gymName, PageRequest pageRequest) {
-        return mediaJpaRepository.findByMediaProblemInfoGymName(gymName, pageRequest);
+        return mediaJpaRepository.findByMediaProblemInfoGymNameOrderByCreatedAtDesc(gymName, pageRequest);
     }
 
     @Override
     public Page<Media> findPagedByUserName(String userName, PageRequest pageRequest) {
-        return mediaJpaRepository.findByUserName(userName, pageRequest);
+        return mediaJpaRepository.findByUserNameOrderByCreatedAtDesc(userName, pageRequest);
     }
 
     @Override
     public Page<Media> findPagedByGymNameAndUserName(String gymName, String userName, PageRequest pageRequest) {
-        return mediaJpaRepository.findByMediaProblemInfoGymNameAndUserName(gymName, userName, pageRequest);
+        return mediaJpaRepository.findByMediaProblemInfoGymNameAndUserNameOrderByCreatedAtDesc(gymName, userName, pageRequest);
     }
 
 
@@ -55,7 +55,7 @@ public class MediaRepository implements MediaLoadPort, MediaUpdatePort {
 
     @Override
     public List<Media> findByUserId(Long userId) {
-        return mediaJpaRepository.findByUserId(userId);
+        return mediaJpaRepository.findByUserIdOrderByCreatedAtDesc(userId);
     }
 
     @Override

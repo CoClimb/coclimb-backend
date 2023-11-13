@@ -7,7 +7,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import swm.s3.coclimb.api.application.port.in.media.dto.MediaCreateRequestDto;
-import swm.s3.coclimb.domain.media.InstagramMediaInfo;
 import swm.s3.coclimb.domain.media.MediaProblemInfo;
 import swm.s3.coclimb.domain.user.User;
 
@@ -16,25 +15,18 @@ import swm.s3.coclimb.domain.user.User;
 public class MediaCreateRequest {
 
     @NotBlank
-    String platform;
+    String videoUrl;
     @NotBlank
-    String mediaUrl;
-    @NotBlank
-    String mediaType;
     String thumbnailUrl;
     String description;
 
-    MediaCreateInstagramInfo instagram;
     @NotNull
     MediaCreateProblemInfo problem;
 
     @Builder
-    public MediaCreateRequest(String platform, String mediaUrl, String mediaType, String thumbnailUrl, MediaCreateInstagramInfo instagram, MediaCreateProblemInfo problem, String description) {
-        this.platform = platform;
-        this.mediaUrl = mediaUrl;
-        this.mediaType = mediaType;
+    public MediaCreateRequest(String videoUrl, String thumbnailUrl, MediaCreateProblemInfo problem, String description) {
+        this.videoUrl = videoUrl;
         this.thumbnailUrl = thumbnailUrl;
-        this.instagram = instagram;
         this.problem = problem;
         this.description = description;
     }
@@ -42,17 +34,9 @@ public class MediaCreateRequest {
     public MediaCreateRequestDto toServiceDto(User user) {
         return MediaCreateRequestDto.builder()
                 .user(user)
-                .mediaUrl(mediaUrl)
-                .mediaType(mediaType)
+                .videoUrl(videoUrl)
                 .thumbnailUrl(thumbnailUrl)
-                .platform(platform)
                 .description(description)
-                .instagramMediaInfo(instagram == null ? null :
-                        InstagramMediaInfo.builder()
-                        .id(instagram.getMediaId())
-                        .userId(user.getInstagramUserInfo().getId())
-                        .permalink(instagram.getPermalink())
-                        .build())
                 .mediaProblemInfo(MediaProblemInfo.builder()
                         .gymName(problem.getGymName())
                         .color(problem.getColor())

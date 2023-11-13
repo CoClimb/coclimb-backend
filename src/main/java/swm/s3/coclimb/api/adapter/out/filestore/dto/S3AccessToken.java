@@ -1,4 +1,4 @@
-package swm.s3.coclimb.api.application.port.out.aws.dto;
+package swm.s3.coclimb.api.adapter.out.filestore.dto;
 
 import lombok.Builder;
 import lombok.Getter;

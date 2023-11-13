@@ -1,33 +1,32 @@
 package swm.s3.coclimb.api.docs;
 
+import com.amazonaws.services.s3.model.AmazonS3Exception;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.test.web.servlet.ResultActions;
 import swm.s3.coclimb.api.RestDocsTestSupport;
-import swm.s3.coclimb.api.adapter.in.web.media.dto.MediaCreateInstagramInfo;
 import swm.s3.coclimb.api.adapter.in.web.media.dto.MediaCreateProblemInfo;
 import swm.s3.coclimb.api.adapter.in.web.media.dto.MediaCreateRequest;
 import swm.s3.coclimb.api.adapter.in.web.media.dto.MediaUpdateRequest;
-import swm.s3.coclimb.api.adapter.out.aws.AwsS3Manager;
-import swm.s3.coclimb.api.adapter.out.filedownload.FileDownloader;
-import swm.s3.coclimb.api.application.port.out.filedownload.DownloadedFileDetail;
 import swm.s3.coclimb.domain.media.InstagramMediaInfo;
 import swm.s3.coclimb.domain.media.Media;
 import swm.s3.coclimb.domain.media.MediaProblemInfo;
 import swm.s3.coclimb.domain.user.User;
 
+import java.net.URL;
 import java.time.LocalDate;
-import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.BDDMockito.given;
+import static org.mockito.ArgumentMatchers.startsWith;
 import static org.mockito.BDDMockito.willDoNothing;
+import static org.mockito.Mockito.verify;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.restdocs.headers.HeaderDocumentation.headerWithName;
 import static org.springframework.restdocs.headers.HeaderDocumentation.requestHeaders;
@@ -36,28 +35,22 @@ import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuild
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.*;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.restdocs.request.RequestDocumentation.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 public class MediaControllerDocsTest extends RestDocsTestSupport {
-
-    @MockBean
-    AwsS3Manager awsS3Manager;
-    @MockBean
-    FileDownloader fileDownloader;
+    @Value("${aws-config.s3.bucket}")
+    private String bucket;
 
     @Test
     @DisplayName("미디어를 등록하는 API")
     void createMedia() throws Exception {
         //given
-        given(fileDownloader.downloadFile(any())).willReturn(DownloadedFileDetail.builder().build());
-        given(awsS3Manager.uploadFile(any())).willReturn("https://test.com");
 
         MediaCreateRequest request = MediaCreateRequest.builder()
-                .platform("instagram")
-                .mediaType("VIDEO")
-                .mediaUrl("mediaUrl")
-                .thumbnailUrl("thumbnailUrl")
+                .videoUrl("https://어쩌구/1/video/uuid.mp4?filed=xxx")
+                .thumbnailUrl("https://어쩌구/1/thumbnail/uuid.mp4?field=xxx")
                 .description("description")
                 .problem(MediaCreateProblemInfo.builder()
                         .clearDate(LocalDate.now())
@@ -67,25 +60,16 @@ public class MediaControllerDocsTest extends RestDocsTestSupport {
                         .type("problemType")
                         .isClear(true)
                         .build())
-                .instagram(MediaCreateInstagramInfo.builder()
-                        .mediaId("instagramMediaId")
-                        .permalink("instagramPermalink")
-                        .build())
                 .build();
 
-        userJpaRepository.save(User.builder().build());
-        Long userId = userJpaRepository.findAll().get(0).getId();
+        User user = userJpaRepository.save(User.builder().name("username").build());
 
-        //when
+        //when, then
         ResultActions result = mockMvc.perform(post("/medias")
-                .header("Authorization", jwtManager.issueToken(String.valueOf(userId)))
+                .header("Authorization", jwtManager.issueToken(String.valueOf(user.getId())))
                 .contentType(APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)));
-        Media sut = mediaJpaRepository.findByUserId(userId).get(0);
-
-        //then
-        result.andExpect(status().isCreated());
-        assertThat(sut.getMediaProblemInfo().getColor()).isEqualTo("color");
+                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isCreated());
 
         //docs
         result.andDo(document("media-create",
@@ -95,28 +79,16 @@ public class MediaControllerDocsTest extends RestDocsTestSupport {
                         headerWithName("Authorization").description("JWT 인증 토큰")
                 ),
                 requestFields(
-                        fieldWithPath("platform")
+                        fieldWithPath("videoUrl")
                                 .type(JsonFieldType.STRING)
-                                .description("미디어 플랫폼 (ex. instagram, original)"),
-                        fieldWithPath("mediaType")
-                                .type(JsonFieldType.STRING)
-                                .description("미디어 타입"),
-                        fieldWithPath("mediaUrl")
-                                .type(JsonFieldType.STRING)
-                                .description("1. 업로드 한 미디어가 저장된 S3 bucket의 key 혹은 2. 외부 플랫폼 미디어 CDN URL"),
+                                .description("비디오를 업로드한 URL"),
                         fieldWithPath("thumbnailUrl")
                                 .type(JsonFieldType.STRING)
-                                .description("1. 업로드 한 썸네일이 저장된 S3 bucket의 key 혹은 2. 외부 플랫폼 썸네일 CDN URL"),
+                                .description("썸네일을 업로드한 URL"),
                         fieldWithPath("description")
                                 .type(JsonFieldType.STRING)
                                 .optional()
                                 .description("미디어 설명"),
-                        fieldWithPath("instagram.mediaId")
-                                .type(JsonFieldType.STRING)
-                                .description("인스타그램 미디어 ID"),
-                        fieldWithPath("instagram.permalink")
-                                .type(JsonFieldType.STRING)
-                                .description("인스타그램 미디어 게시물 URL"),
                         fieldWithPath("problem.gymName")
                                 .type(JsonFieldType.STRING)
                                 .description("미디어 내 암장명"),
@@ -145,60 +117,41 @@ public class MediaControllerDocsTest extends RestDocsTestSupport {
     void getPagedMedias() throws Exception {
         //given
         int pageSize = 5;
-        IntStream.range(0, 10).forEach(i -> userJpaRepository.save(User.builder().name("user" + String.valueOf(i)).build()));
-        List<User> users = userJpaRepository.findAll();
-
-        mediaJpaRepository.saveAll(IntStream.range(0, 10).mapToObj(i -> Media.builder()
-                        .user(users.get(i))
-                        .mediaUrl("mediaUrl")
-                        .thumbnailUrl("thumbnailUrl" + String.valueOf(i))
-                        .mediaProblemInfo(MediaProblemInfo.builder()
-                                .gymName("gym" + String.valueOf(i))
-                                .color("color" + String.valueOf(i))
-                                .build())
-                        .build())
-                .collect(Collectors.toList()));
+        User user = userJpaRepository.save(User.builder().name("user").build());
+        for (int iter = 0; iter < 10; iter++) {
+            mediaJpaRepository.saveAll(IntStream.range(0, 2).mapToObj(i -> Media.builder()
+                            .user(user)
+                            .videoKey("videoKey"+i)
+                            .thumbnailKey("thumbnailKey"+i)
+                            .description("description")
+                            .mediaProblemInfo(MediaProblemInfo.builder()
+                                    .gymName("gym"+i)
+                                    .color("color" + i)
+                                    .clearDate(LocalDate.now())
+                                    .isClear(true)
+                                    .build())
+                            .build())
+                    .collect(Collectors.toList()));
+        }
 
         //when
         //then
         ResultActions result = mockMvc.perform(get("/medias")
                         .param("page", "0")
                         .param("size", String.valueOf(pageSize))
-                        .param("gymName", "null")
-                        .param("userName", "null"))
+                        .param("gymName", "gym0")
+                        .param("userName", "user"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.medias.length()").value(pageSize))
-                .andExpect(jsonPath("$.medias[0].gymName").value("gym0"))
-                .andExpect(jsonPath("$.medias[1].gymName").value("gym1"))
-                .andExpect(jsonPath("$.medias[2].gymName").value("gym2"))
-                .andExpect(jsonPath("$.medias[3].gymName").value("gym3"))
-                .andExpect(jsonPath("$.medias[4].gymName").value("gym4"))
+                .andExpect(jsonPath("$.medias[0].problem.gymName").value("gym0"))
+                .andExpect(jsonPath("$.medias[1].problem.gymName").value("gym0"))
+                .andExpect(jsonPath("$.medias[2].problem.gymName").value("gym0"))
+                .andExpect(jsonPath("$.medias[3].problem.gymName").value("gym0"))
+                .andExpect(jsonPath("$.medias[4].problem.gymName").value("gym0"))
                 .andExpect(jsonPath("$.page").value(0))
                 .andExpect(jsonPath("$.size").value(pageSize))
                 .andExpect(jsonPath("$.totalPage").value(2));
-        mockMvc.perform(get("/medias")
-                .param("page", "0")
-                .param("size", String.valueOf(pageSize))
-                .param("gymName", "gym3"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.medias.length()").value(1))
-                .andExpect(jsonPath("$.medias[0].gymName").value("gym3"));
-        mockMvc.perform(get("/medias")
-                .param("page", "0")
-                .param("size", String.valueOf(pageSize))
-                .param("userName", "user3"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.medias.length()").value(1))
-                .andExpect(jsonPath("$.medias[0].username").value("user3"));
-        mockMvc.perform(get("/medias")
-                .param("page", "0")
-                .param("size", String.valueOf(pageSize))
-                .param("gymName", "gym3")
-                .param("userName", "user3"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.medias.length()").value(1))
-                .andExpect(jsonPath("$.medias[0].gymName").value("gym3"))
-                .andExpect(jsonPath("$.medias[0].username").value("user3"));
+
 
         //docs
         result.andDo(document("media-page",
@@ -229,15 +182,33 @@ public class MediaControllerDocsTest extends RestDocsTestSupport {
                         fieldWithPath("medias[].username")
                                 .type(JsonFieldType.STRING)
                                 .description("미디어 업로드 유저명"),
+                        fieldWithPath("medias[].videoUrl")
+                                .type(JsonFieldType.STRING)
+                                .description("영상 URL"),
                         fieldWithPath("medias[].thumbnailUrl")
                                 .type(JsonFieldType.STRING)
-                                .description("미디어 썸네일 URL"),
-                        fieldWithPath("medias[].gymName")
+                                .description("썸네일 URL"),
+                        fieldWithPath("medias[].description")
                                 .type(JsonFieldType.STRING)
-                                .description("미디어 내 암장 이름"),
-                        fieldWithPath("medias[].problemColor")
+                                .description("미디어 설명"),
+                        fieldWithPath("medias[].problem.gymName").optional()
                                 .type(JsonFieldType.STRING)
-                                .description("미디어 내 문제 난이도 색상")
+                                .description("문제가 속한 암장 이름"),
+                        fieldWithPath("medias[].problem.color")
+                                .type(JsonFieldType.STRING)
+                                .description("문제 난이도 색상"),
+                        fieldWithPath("medias[].problem.clearDate")
+                                .type(JsonFieldType.STRING)
+                                .description("문제 클리어 날짜"),
+                        fieldWithPath("medias[].problem.isClear")
+                                .type(JsonFieldType.BOOLEAN)
+                                .description("문제 클리어 여부"),
+                        fieldWithPath("medias[].problem.perceivedDifficulty")
+                                .type(JsonFieldType.STRING)
+                                .description("문제 체감 난이도").optional(),
+                        fieldWithPath("medias[].problem.type")
+                                .type(JsonFieldType.STRING)
+                                .description("문제 유형").optional()
                 )));
     }
 
@@ -249,12 +220,10 @@ public class MediaControllerDocsTest extends RestDocsTestSupport {
         User user = userJpaRepository.findAll().get(0);
 
         Media media = mediaJpaRepository.save(Media.builder()
-                .thumbnailUrl("thumbnailUrl")
+                .thumbnailKey("thumbnailKey")
                 .user(user)
-                .mediaUrl("mediaUrl")
-                .mediaType("VIDEO")
+                .videoKey("videoKey")
                 .description("description")
-                .platform("INSTAGRAM")
                 .instagramMediaInfo(InstagramMediaInfo.builder()
                         .permalink("permalink")
                         .build())
@@ -272,11 +241,11 @@ public class MediaControllerDocsTest extends RestDocsTestSupport {
         //when
         //then
         ResultActions result = mockMvc.perform(org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get("/medias/{id}", mediaId))
+                .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(mediaId))
                 .andExpect(jsonPath("$.username").value("username"))
-                .andExpect(jsonPath("$.platform").value("INSTAGRAM"))
-                .andExpect(jsonPath("$.mediaUrl").isString())
+                .andExpect(jsonPath("$.videoUrl").isString())
                 .andExpect(jsonPath("$.thumbnailUrl").isString())
                 .andExpect(jsonPath("$.description").value("description"))
                 .andExpect(jsonPath("$.problem.clearDate").value(LocalDate.now().toString()))
@@ -299,39 +268,33 @@ public class MediaControllerDocsTest extends RestDocsTestSupport {
                         fieldWithPath("username")
                                 .type(JsonFieldType.STRING)
                                 .description("미디어 업로드 유저명"),
-                        fieldWithPath("platform")
+                        fieldWithPath("videoUrl")
                                 .type(JsonFieldType.STRING)
-                                .description("미디어 플랫폼 (ex. instagram, original)"),
-                        fieldWithPath("mediaUrl")
-                                .type(JsonFieldType.STRING)
-                                .description("미디어 URL"),
+                                .description("영상 URL"),
                         fieldWithPath("thumbnailUrl")
                                 .type(JsonFieldType.STRING)
-                                .description("미디어 썸네일 URL"),
+                                .description("썸네일 URL"),
                         fieldWithPath("description")
                                 .type(JsonFieldType.STRING)
-                                .optional()
                                 .description("미디어 설명"),
-                        fieldWithPath("problem.clearDate")
+                        fieldWithPath("problem.gymName").optional()
                                 .type(JsonFieldType.STRING)
-                                .description("문제 클리어 날짜"),
-                        fieldWithPath("problem.gymName")
-                                .type(JsonFieldType.STRING)
-                                .description("문제 암장 이름"),
+                                .description("문제가 속한 암장 이름"),
                         fieldWithPath("problem.color")
                                 .type(JsonFieldType.STRING)
                                 .description("문제 난이도 색상"),
-                        fieldWithPath("problem.type")
+                        fieldWithPath("problem.clearDate")
                                 .type(JsonFieldType.STRING)
-                                .optional()
-                                .description("문제 타입"),
+                                .description("문제 클리어 날짜"),
                         fieldWithPath("problem.isClear")
                                 .type(JsonFieldType.BOOLEAN)
                                 .description("문제 클리어 여부"),
                         fieldWithPath("problem.perceivedDifficulty")
                                 .type(JsonFieldType.STRING)
-                                .optional()
-                                .description("문제 체감 난이도")
+                                .description("문제 체감 난이도").optional(),
+                        fieldWithPath("problem.type")
+                                .type(JsonFieldType.STRING)
+                                .description("문제 유형").optional()
                 )));
     }
 
@@ -379,19 +342,23 @@ public class MediaControllerDocsTest extends RestDocsTestSupport {
     @DisplayName("미디어를 삭제하는 API")
     void deleteMedia() throws Exception {
         //given
-        willDoNothing().given(awsS3Manager).deleteFile(any());
-        userJpaRepository.save(User.builder().build());
-        User user = userJpaRepository.findAll().get(0);
-        mediaJpaRepository.save(Media.builder().user(user).build());
-        Long mediaId = mediaJpaRepository.findAll().get(0).getId();
+        String s3Key = "test/deleteMedia.txt";
+        URL uploadUrl = awsS3Manager.getUploadUrl(s3Key);
+        uploadByPreSignedUrl(uploadUrl);
+        User user = userJpaRepository.save(User.builder().build());
+        Long mediaId = mediaJpaRepository.save(Media.builder()
+                .videoKey(s3Key)
+                .thumbnailKey(s3Key)
+                .user(user)
+                .build()).getId();
 
-        //when
-        //then
+        //when, then
         ResultActions result = mockMvc.perform(delete("/medias/{id}", mediaId)
                 .header("Authorization", jwtManager.issueToken(String.valueOf(user.getId()))))
                 .andExpect(status().isNoContent());
         Media sut = mediaJpaRepository.findById(mediaId).orElse(null);
         assertThat(sut).isNull();
+        assertThatThrownBy(()->amazonS3Client.getObject(bucket, s3Key)).isInstanceOf(AmazonS3Exception.class);
 
         //docs
         result.andDo(document("media-delete",
@@ -408,8 +375,8 @@ public class MediaControllerDocsTest extends RestDocsTestSupport {
     }
 
     @Test
-    @DisplayName("미디어 업로드를 위한 엑세스 토큰을 요청하는 API")
-    void getMediaAccessToken() throws Exception {
+    @DisplayName("미디어를 업로드 할 Url을 요청하는 API")
+    void getUploadUrl() throws Exception {
         // given
         User user = User.builder()
                 .name("user")
@@ -418,44 +385,27 @@ public class MediaControllerDocsTest extends RestDocsTestSupport {
         String accessToken = jwtManager.issueToken(user.getId().toString());
 
         // when, then
-        ResultActions result = mockMvc.perform(get("/medias/upload-token")
-                        .header("Authorization", accessToken)
-                        .queryParam("type", "0"))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.accessKey").isString())
-                .andExpect(jsonPath("$.secretKey").isString())
-                .andExpect(jsonPath("$.sessionToken").isString())
-                .andExpect(jsonPath("$.bucket").value("coclimb-media-bucket"))
-                .andExpect(jsonPath("$.key").isString());
+        ResultActions result = mockMvc.perform(get("/medias/upload")
+                        .header("Authorization", accessToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.videoUploadUrl").isString())
+                .andExpect(jsonPath("$.thumbnailUploadUrl").isString());
 
         //docs
-        result.andDo(document("media-upload-token",
+        result.andDo(document("media-upload-url",
                 preprocessRequest(prettyPrint()),
                 preprocessResponse(prettyPrint()),
                 requestHeaders(
                         headerWithName("Authorization")
                                 .description("JWT 인증 토큰")
                 ),
-                queryParameters(
-                        parameterWithName("type")
-                                .description("업로드 파일 타입 : 0(미디어), 1(썸네일)")
-                ),
                 responseFields(
-                        fieldWithPath("accessKey")
+                        fieldWithPath("videoUploadUrl")
                                 .type(JsonFieldType.STRING)
-                                .description("access key"),
-                        fieldWithPath("secretKey")
+                                .description("영상을 업로드할 Url"),
+                        fieldWithPath("thumbnailUploadUrl")
                                 .type(JsonFieldType.STRING)
-                                .description("secret key"),
-                        fieldWithPath("sessionToken")
-                                .type(JsonFieldType.STRING)
-                                .description("session token"),
-                        fieldWithPath("bucket")
-                                .type(JsonFieldType.STRING)
-                                .description("s3 버켓 이름"),
-                        fieldWithPath("key")
-                                .type(JsonFieldType.STRING)
-                                .description("파일 경로")
+                                .description("썸네일을 업로드할 Url")
                 )));
 
     }

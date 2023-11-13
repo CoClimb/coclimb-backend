@@ -9,6 +9,14 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import software.amazon.awssdk.auth.credentials.ProfileCredentialsProvider;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.s3.model.GetObjectRequest;
+import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import software.amazon.awssdk.services.s3.presigner.S3Presigner;
+import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
+import software.amazon.awssdk.services.s3.presigner.model.PresignedPutObjectRequest;
+import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignRequest;
 import software.amazon.awssdk.services.sts.StsClient;
 import software.amazon.awssdk.services.sts.model.AssumeRoleRequest;
 import software.amazon.awssdk.services.sts.model.Credentials;
@@ -18,6 +26,8 @@ import swm.s3.coclimb.api.exception.errortype.aws.S3UploadFail;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.URL;
+import java.time.Duration;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -96,6 +106,20 @@ public class AwsS3LearningTest extends IntegrationTestSupport {
         assertThatThrownBy(() -> uploadToSpecificResource(bucket, "test/"+uuid+"/attack",credentials)).isInstanceOf(S3UploadFail.class);
     }
 
+    @Test
+    @DisplayName("서명된 업로드 URL을 생성한다.")
+    void preSignedUrl() throws Exception {
+        // given
+        String bucket = "coclimb-media-bucket";
+        String uuid = UUID.randomUUID().toString().substring(0, 8);
+        URL preSignedUrl = getPreSignedUrl(bucket, "test/" + uuid);
+        // when
+        Integer code = uploadByPreSignedUrl(preSignedUrl);
+
+        // then
+        Assertions.assertThat(code).isEqualTo(200);
+    }
+
     public String generatePolicy(String bucketName, String prefix, String resourceName) {
         String resourceArn = String.format("arn:aws:s3:::%s/%s/%s", bucketName, prefix, resourceName);
         //prefix : media?
@@ -157,4 +181,50 @@ public class AwsS3LearningTest extends IntegrationTestSupport {
             throw new RuntimeException("Error while converting InputStream to String", e);
         }
     }
+
+    public URL getPreSignedUrl(String bucket, String key) {
+
+        // S3 Presigner 생성 (presigned URL 생성에 사용)
+        S3Presigner presigner = S3Presigner.builder()
+                .credentialsProvider(ProfileCredentialsProvider.create())
+                .region(Region.AP_NORTHEAST_2)
+                .build();
+
+        try {
+            // Presigned URL의 만료 시간 설정 (예: 1시간)
+            Duration expiration = Duration.ofHours(1);
+
+            // GetObjectRequest 생성
+
+            GetObjectRequest getObjectRequest = GetObjectRequest.builder()
+                    .bucket(bucket)
+                    .key(key)
+                    .build();
+
+            // GetObjectPresignRequest 생성
+            GetObjectPresignRequest getObjectPresignRequest = GetObjectPresignRequest.builder()
+                    .signatureDuration(expiration)
+                    .getObjectRequest(getObjectRequest)
+                    .build();
+            PutObjectPresignRequest putObjectPresignRequest = PutObjectPresignRequest.builder()
+                    .signatureDuration(expiration)
+                    .putObjectRequest(PutObjectRequest.builder()
+                            .bucket(bucket)
+                            .key(key)
+                            .build())
+                    .build();
+
+            // Presigned URL 생성
+//            PresignedGetObjectRequest presignedGetObjectRequest = presigner.presignGetObject(getObjectPresignRequest);
+            PresignedPutObjectRequest presignedPutObjectRequest = presigner.presignPutObject(putObjectPresignRequest);
+            // 생성된 Presigned URL 출력
+            System.out.println("Presigned URL: " + presignedPutObjectRequest.url());
+            return presignedPutObjectRequest.url();
+
+        } finally {
+            // Presigner 리소스 해제
+            presigner.close();
+        }
+    }
+
 }

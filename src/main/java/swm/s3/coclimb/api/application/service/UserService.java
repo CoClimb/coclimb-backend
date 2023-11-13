@@ -5,8 +5,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import swm.s3.coclimb.api.application.port.in.user.UserCommand;
 import swm.s3.coclimb.api.application.port.in.user.UserQuery;
+import swm.s3.coclimb.api.application.port.out.filestore.FileStoreUpdatePort;
 import swm.s3.coclimb.api.application.port.in.user.dto.UserUpdateRequestDto;
-import swm.s3.coclimb.api.application.port.out.aws.AwsS3UpdatePort;
 import swm.s3.coclimb.api.application.port.out.persistence.gymlike.GymLikeUpdatePort;
 import swm.s3.coclimb.api.application.port.out.persistence.media.MediaLoadPort;
 import swm.s3.coclimb.api.application.port.out.persistence.media.MediaUpdatePort;
@@ -31,7 +31,7 @@ public class UserService implements UserQuery, UserCommand {
     private final MediaUpdatePort mediaUpdatePort;
     private final MediaLoadPort mediaLoadPort;
     private final GymLikeUpdatePort gymLikeUpdatePort;
-    private final AwsS3UpdatePort awsS3UpdatePort;
+    private final FileStoreUpdatePort fileStoreUpdatePort;
 
 
     @Override
@@ -81,8 +81,8 @@ public class UserService implements UserQuery, UserCommand {
     public void deleteUser(User user) {
         List<Media> medias = mediaLoadPort.findByUserId(user.getId());
         IntStream.range(0, medias.size()).forEach(i -> {
-            awsS3UpdatePort.deleteFile(medias.get(i).getMediaUrl());
-            awsS3UpdatePort.deleteFile(medias.get(i).getThumbnailUrl());
+            fileStoreUpdatePort.deleteFile(medias.get(i).getVideoKey());
+            fileStoreUpdatePort.deleteFile(medias.get(i).getThumbnailKey());
         });
         mediaUpdatePort.deleteAllByUserId(user.getId());
         gymLikeUpdatePort.deleteAllByUserId(user.getId());

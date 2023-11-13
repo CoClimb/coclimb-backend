@@ -7,7 +7,7 @@ import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.test.web.servlet.ResultActions;
 import swm.s3.coclimb.api.RestDocsTestSupport;
 import swm.s3.coclimb.api.adapter.in.web.user.dto.UserUpdateRequest;
-import swm.s3.coclimb.api.adapter.out.aws.AwsS3Manager;
+import swm.s3.coclimb.api.adapter.out.filestore.AwsS3Manager;
 import swm.s3.coclimb.domain.gymlike.GymLike;
 import swm.s3.coclimb.domain.media.Media;
 import swm.s3.coclimb.domain.user.InstagramUserInfo;

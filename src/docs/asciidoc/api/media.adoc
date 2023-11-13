@@ -46,22 +46,17 @@ include::{snippets}/media-delete/request-headers.adoc[]
 ==== HTTP Response
 include::{snippets}/media-delete/http-response.adoc[]
 ---
-=== 미디어 업로드 권한 요청
-private s3 upload를 위한 임시 access token 요청 API입니다.
+=== 미디어 업로드 URL 요청
+private s3 upload를 위한 presigned URL 요청 API입니다.
 
-발급된 토큰은 900초(15분) 간 유효합니다.
+발급된 URL은 5분간 유효합니다.
 
-해당 토큰과 함께 반환된 bucket과 key에 해당하는 s3 resource에만 업로드가 가능합니다.
-
-미디어, 썸네일 업로드 이후 해당 url을 사용해<<신규 미디어 등록>>요청을 해주세요.
+미디어, 썸네일 업로드 이후 업로드에 사용한 URL들을 <<신규 미디어 등록>>요청으로 서버에 저장해주세요.
 
 ==== HTTP Request
-include::{snippets}/media-upload-token/http-request.adoc[]
-==== Request Parameters
-include::{snippets}/media-upload-token/query-parameters.adoc[]
+include::{snippets}/media-upload-url/http-request.adoc[]
 ==== Request Headers
-include::{snippets}/media-upload-token/request-headers.adoc[]
-
+include::{snippets}/media-upload-url/request-headers.adoc[]
 ==== HTTP Response
-include::{snippets}/media-upload-token/http-response.adoc[]
-include::{snippets}/media-upload-token/response-fields.adoc[]
+include::{snippets}/media-upload-url/http-response.adoc[]
+include::{snippets}/media-upload-url/response-fields.adoc[]

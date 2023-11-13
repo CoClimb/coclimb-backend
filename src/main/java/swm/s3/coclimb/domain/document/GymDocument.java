@@ -8,6 +8,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.Length;
 import org.springframework.data.elasticsearch.annotations.Document;
+import org.springframework.data.elasticsearch.annotations.Field;
+import org.springframework.data.elasticsearch.annotations.FieldType;
 import swm.s3.coclimb.domain.gym.Gym;
 import swm.s3.coclimb.domain.gym.Location;
 
@@ -23,10 +25,14 @@ public class GymDocument {
     private String address;
     private String phone;
     @Length(max = 1024)
+    @Field(name = "image_url", type = FieldType.Text)
     private String imageUrl;
+    @Field(name = "instagram_id", type = FieldType.Text)
     private String instagramId;
     @Length(max = 1024)
+    @Field(name = "homepage_url", type = FieldType.Text)
     private String homepageUrl;
+    @Field(name = "grading_system", type = FieldType.Text)
     private String gradingSystem;
 
     @Embedded

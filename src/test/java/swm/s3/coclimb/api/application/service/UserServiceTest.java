@@ -4,7 +4,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import swm.s3.coclimb.api.IntegrationTestSupport;
-import swm.s3.coclimb.api.adapter.out.aws.AwsS3Manager;
+import swm.s3.coclimb.api.adapter.out.filestore.AwsS3Manager;
 import swm.s3.coclimb.domain.gymlike.GymLike;
 import swm.s3.coclimb.domain.media.Media;
 import swm.s3.coclimb.domain.user.InstagramUserInfo;

@@ -16,12 +16,14 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
+import software.amazon.awssdk.auth.credentials.ProfileCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.secretsmanager.SecretsManagerClient;
 import software.amazon.awssdk.services.secretsmanager.model.GetSecretValueRequest;
 import software.amazon.awssdk.services.secretsmanager.model.GetSecretValueResponse;
 import software.amazon.awssdk.services.sts.StsClient;
-import swm.s3.coclimb.api.adapter.out.aws.AwsCloudFrontManager;
+import swm.s3.coclimb.api.adapter.out.filestore.AwsCloudFrontManager;
 import swm.s3.coclimb.config.propeties.AwsCloudFrontProperties;
 import swm.s3.coclimb.config.propeties.AwsCredentialsProperties;
 import swm.s3.coclimb.config.propeties.AwsRdsProperties;
@@ -162,4 +164,14 @@ public class AwsConfig {
         }
     }
 
+
+    @Bean
+    public S3Presigner s3Presigner(){
+        return S3Presigner.builder()
+                .credentialsProvider(() -> AwsBasicCredentials
+                        .create(credentialsProperties.getAccessKey(),
+                                credentialsProperties.getSecretKey()))
+                .region(Region.of(region))
+                .build();
+    }
 }

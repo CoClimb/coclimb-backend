@@ -5,8 +5,10 @@ import lombok.Getter;
 
 @Builder
 @Getter
-public class MediaPageRequestDto {
+public class MediaPageRequest {
     private int page;
     private int size;
     private String sort;
+    private String userName;
+    private String gymName;
 }

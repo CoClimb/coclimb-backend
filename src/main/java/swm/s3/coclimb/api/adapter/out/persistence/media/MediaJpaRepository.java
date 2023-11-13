@@ -15,19 +15,19 @@ import java.util.Optional;
 public interface MediaJpaRepository extends JpaRepository<Media, Long> {
 
     @EntityGraph(attributePaths = {"user"})
-    Page<Media> findByIdNotNull(PageRequest pageRequest);
+    Page<Media> findByIdNotNullOrderByCreatedAtDesc(PageRequest pageRequest);
     Optional<Media> findByInstagramMediaInfoId(String instagramMediaId);
 
-    Page<Media> findByMediaProblemInfoGymName(String gymName, PageRequest pageRequest);
+    Page<Media> findByMediaProblemInfoGymNameOrderByCreatedAtDesc(String gymName, PageRequest pageRequest);
 
     @EntityGraph(attributePaths = {"user"})
-    Page<Media> findByUserName(String userName, PageRequest pageRequest);
+    Page<Media> findByUserNameOrderByCreatedAtDesc(String userName, PageRequest pageRequest);
 
     @EntityGraph(attributePaths = {"user"})
-    Page<Media> findByMediaProblemInfoGymNameAndUserName(String gymName, String userName, PageRequest pageRequest);
+    Page<Media> findByMediaProblemInfoGymNameAndUserNameOrderByCreatedAtDesc(String gymName, String userName, PageRequest pageRequest);
 
     @EntityGraph(attributePaths = {"user"})
-    List<Media> findByUserId(Long userId);
+    List<Media> findByUserIdOrderByCreatedAtDesc(Long userId);
 
     @Modifying(clearAutomatically = true)
     @Query("delete from Media m where m.user.id = :userId")
